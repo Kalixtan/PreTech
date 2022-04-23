@@ -82,13 +82,17 @@ class HD44780 {
 		} else {
 			this.m_dr = data
 		}
-		console.log("DATA: "+this.m_dr)
+		console.log("DATA: "+this.m_dr +"   "+this.m_active_ram)
 		
+		
+		console.log('data len', this.m_data_len)
 		if (this.m_active_ram = "DDRAM"){
-			console.log('data len', this.m_data_len)
 			this.DDRAM[ this.m_address_pointer ] = this.m_dr;
-			this.m_address_pointer += this.m_cursor_direction
+		} else {
+			this.CGRAM[ this.m_address_pointer ] = this.m_dr;
 		}
+		this.m_address_pointer += this.m_cursor_direction
+		
 		this.correct_ac();
 		
 		this.set_busy_flag(41);
@@ -215,7 +219,7 @@ class HD44780 {
 		document.getElementById('DDRAM').textContent = this.buf2hex(this.DDRAM);
 		document.getElementById('DDRAM_C').textContent = this.buf2char(this.DDRAM);
 		document.getElementById('CGRAM').textContent = this.buf2hex(this.CGRAM);
-		document.getElementById('busy_flag').textContent = this.m_busy_flag.toString() +"  "+ this.m_busy_timer.toString();
+		document.getElementById('busy_flag').textContent = this.m_busy_flag.toString() +"  "+ this.m_busy_timer.toString() +" -  "+this.m_active_ram;
 	}
 	
 	buf2char(buffer) { // buffer is an ArrayBuffer
