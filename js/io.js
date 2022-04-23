@@ -9,9 +9,11 @@ class IO {
 		// HD44780
 		if( address == 0x4000 ){
 			console.log("          readport : "+this.toHex(address))
+			return this.core.lcd.read(0x4000)
 		}
 		else if( address == 0x4100 ){
 			//console.log("          readport : "+this.toHex(address))
+			return this.core.lcd.read(0x4100)
 		}
 	}
 	writeport( address, data ){
@@ -21,10 +23,10 @@ class IO {
 	
 		// HD44780
 		if( address == 0x4000 ){
-			this.core.lcd.control_write( data )
+			this.core.lcd.control_write( data<<4 )
 		}
 		else if( address == 0x4100 ){
-			this.core.lcd.data_write( data )
+			this.core.lcd.data_write( data<<4 )
 		}
 	
 	}

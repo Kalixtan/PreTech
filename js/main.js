@@ -12,7 +12,9 @@ class CORE {
 			io:  false,
 		};
 		this.started = false;
-		this.frame = 0
+
+		this.cycles_until_frame_end = 4_000_000 / 50
+		this.cycles_until_interrupt = 4_000_000 / 10
 	}
 	setRom(arybuf) {
 		this.reset();
@@ -27,19 +29,23 @@ class CORE {
 	update() {
 		if (!this.started)
 			return;
-		this.run(80000);
-		if (++this.frame == 5) {
-			this.frame = 0;
-			this.cpu.interrupt(false, 0);
-		}
+
+		this.run();
 		
 		//HD44780
-		//this.lcd.update()
+		this.lcd.update()
 	}
-	run(count) {
-		for (let i = 0; i < count; i++) {
+	run() {
+		this.cpu.cycle_counter = 0
+		while (this.cpu.cycle_counter < this.cycles_until_frame_end) {
 			this.cpu.run_instruction();
-			this.lcd.update()//HD44780
+		}
+		this.cycles_until_frame_end -= this.cpu.cycle_counter;
+		this.cycles_until_frame_end += 4_000_000 / 50;
+		this.cycles_until_interrupt -= this.cpu.cycle_counter;
+		if (this.cycles_until_interrupt < 0) {
+			this.cycles_until_interrupt += 4_000_000 / 10;
+			this.cpu.interrupt(false, 0);
 		}
 	}
 	reset() {

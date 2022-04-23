@@ -1,0 +1,5 @@
+.include "include/hardware.s"
+.include "include/rominfo.s"
+.include "include/constants.s"
+.include "include/structs.s"
+.include "include/macros.s"

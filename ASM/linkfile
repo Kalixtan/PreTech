@@ -1,0 +1,10 @@
+[objects]
+build/wram.o
+build/bank_000.o
+build/bank_001.o
+build/bank_002.o
+build/bank_003.o
+build/bank_004.o
+build/bank_005.o
+build/bank_006.o
+build/bank_007.o
