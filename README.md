@@ -1,4 +1,4 @@
-# PreEmulation
+# PreTech - The Vtech: PreComputer Emulator
 A ***(Super early expermental)*** emulator for the PreComputer line of computers.
 
 
