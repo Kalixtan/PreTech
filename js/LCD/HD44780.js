@@ -224,8 +224,8 @@ class HD44780 {
 		return '0x' + (('0000' + v.toString(16).toUpperCase()));
 	}
 	
-	set_busy_flag = (usec) => { // TODO (make it so it actaly waits a few steps then sets "m_busy_flag" to false again)
-		//this.m_busy_flag = true;
+	set_busy_flag = (usec) => {
+		//this.m_busy_flag = true; // commented out as the PrC1000 doesnt wait for this and we want to get something desplaying before dealing with this stuff
 		usec = usec * this.m_busy_factor + 0.5;
 		this.m_busy_timer = usec
 	}
