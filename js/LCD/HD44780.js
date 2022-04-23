@@ -200,9 +200,17 @@ class HD44780 {
 	
 	update_debug(){
 		document.getElementById('DDRAM').textContent = this.buf2hex(this.DDRAM);
+		document.getElementById('DDRAM_C').textContent = this.buf2char(this.DDRAM);
 		document.getElementById('CGRAM').textContent = this.buf2hex(this.CGRAM);
 		document.getElementById('busy_flag').textContent = this.m_busy_flag.toString() +"  "+ this.m_busy_timer.toString();
 	}
+	
+	buf2char(buffer) { // buffer is an ArrayBuffer
+		return [...new Uint8Array(buffer)]
+			.map(x => String.fromCharCode(x))
+			.join(' ');
+	}
+	
 	buf2hex(buffer) { // buffer is an ArrayBuffer
 		return [...new Uint8Array(buffer)]
 			.map(x => x.toString(16).padStart(2, '0'))
