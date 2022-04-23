@@ -6,7 +6,7 @@ class PRC1000_Keyboard {
 	
 	read( address ){
 		if( address < 0x01ff ){
-			console.log("          KEYBOARD INPUT : "+this.toHex(address))
+			//console.log("          KEYBOARD INPUT : "+this.toHex(address))
 			return 0xff
 		}
 		return null

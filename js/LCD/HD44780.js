@@ -94,6 +94,17 @@ class HD44780 {
 		this.set_busy_flag(41);
 		this.update_debug();
 	}
+	
+	shift_display( direction ){ // not used?
+		if (direction == 1){ // taken from: https://stackoverflow.com/questions/63342389/shift-values-of-typed-javascript-array
+			this.DDRAM.set(this.DDRAM.subarray(1))
+			this.DDRAM.fill(0, -1)
+		} else {
+			this.DDRAM.set(this.DDRAM.subarray(0, -1), 1)
+			this.DDRAM.fill(0, 0, 1)
+		}
+	}
+		
 	control_write( data ){
 		if (this.m_data_len == 4) {
 			if (this.m_nibble) {
@@ -151,10 +162,12 @@ class HD44780 {
 
 			
 			if (this.BIT(this.m_ir, 3)){
-				// shift_display(direction);
+				this.shift_display(this.m_cursor_direction);
 				console.log("HD44780: shift display: "+this.m_cursor_direction);
 			}else{
 				//update_ac(direction);
+				this.m_address_pointer += this.m_cursor_direction
+				this.correct_ac();
 				console.log("HD44780: shift cursor: "+this.m_cursor_direction);
 			}
 			this.set_busy_flag(37);
