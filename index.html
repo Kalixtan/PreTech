@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Cache-Control" content="no-cache" />
+    <meta name="author" content="Kunihiro Ando" />
+    <title>PreEmulation</title>
+    <link href="css/style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div>
+      <label for="fileInput" class="button">Choose a file</label>
+      <input type="file" id="fileInput">
+	  <div>DDRAM</div>
+	  <div id="DDRAM">DDRAM</div>
+	  <div>------------------------------------------------------------------------------------------------------------------------------</div>
+	  <div>CGRAM</div>
+	  <div id="CGRAM">CGRAM</div>
+	  <div>------------------------------------------------------------------------------------------------------------------------------</div>
+	  <div>busy_flag</div>
+	  <div id="busy_flag">busy_flag</div>
+    </div>
+    <script src="js/io.js"></script>
+    <script src="js/irq.js"></script>
+    <script src="js/mem.js"></script>
+    <script src="js/z80.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/LCD/HD44780.js"></script>
+    <script src="js/index.js"></script>
+  </body>
+</html>
