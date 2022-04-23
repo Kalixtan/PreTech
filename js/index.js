@@ -1,5 +1,6 @@
 const main = new CORE();
 document.getElementById("fileInput").addEventListener("change", (e) => {
+	main.reset();
 	const file = e.target.files[0];
 	if (!file) return;
 	var fileReader = new FileReader();
@@ -17,7 +18,9 @@ document.getElementById("fileInput").addEventListener("change", (e) => {
 function loop(timestamp) {
 	var dt = timestamp - lastRender
 
-	main.update(dt)
+	for (var i = 0; i < 4; i++) {
+		main.update(dt)
+	}
 	main.lcd.update_debug()
 
 	lastRender = timestamp

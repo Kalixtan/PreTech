@@ -16,7 +16,7 @@ class HD44780 {
 		
 		this.m_char_size = 10
 		this.m_nibble = false;
-		this.m_data_len = 8
+		this.m_data_len = 4
 		this.m_num_line = 0
 		
 		this.m_address_pointer = 0;
@@ -29,6 +29,10 @@ class HD44780 {
 		this.m_rs_state = false;
 		this.m_rw_state = false;
 		
+	}
+	
+	reset() {
+		constructor(this.core)
 	}
 	
 	update_nibble( rs, rw ){
