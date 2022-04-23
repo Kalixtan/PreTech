@@ -4,6 +4,10 @@ class HD44780 {
 		this.debug = false;
 		
 		this.core = core;
+		this.reset()
+	}
+	
+	reset() {
 		this.read_mode = false;
 		
 		this.DDRAM  = new Uint8Array(104); // IDK the right size yet
@@ -29,10 +33,6 @@ class HD44780 {
 		this.m_rs_state = false;
 		this.m_rw_state = false;
 		
-	}
-	
-	reset() {
-		constructor(this.core)
 	}
 	
 	update_nibble( rs, rw ){

@@ -53,6 +53,7 @@ class CORE {
 		this.io.reset();
 		this.mem.reset();
 		this.cpu.reset();
+		this.lcd.reset();
 	}
 }
 
