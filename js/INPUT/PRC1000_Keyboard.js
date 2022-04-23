@@ -97,17 +97,14 @@ class PRC1000_Keyboard {
 				b |= this.is_key_down('8')*0b10000000; // ?
 				break;
 			}
-			case 7: {
+			case 8: {
 				b |= this.is_key_down('9')*0b00000001; // ? (KEYCODE_6_PAD)
 				b |= this.is_key_down('0')*0b00000010; // ? (KEYCODE_7_PAD)
-				b |= 0b11111100; // ? (will not power on without this)
+				b |= 0xff; // NEEDED TO POWER ON!
 				break;
 			}
-			case 8: {
-				return 0xff // power button
-			}
 			default: {
-				return 0x0
+				return 0x00
 			}
 			
 		}
