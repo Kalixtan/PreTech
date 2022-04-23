@@ -3,7 +3,7 @@ A ***(Super early expermental)*** emulator for the PreComputer line of computers
 
 
 Computers:
-  PreComputer 1000 - testing (variations are untested)
+   - PreComputer 1000 - testing (variations are untested)
 
 Parts:
    - CPU:
