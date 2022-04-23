@@ -23,10 +23,10 @@ class IO {
 	
 		// HD44780
 		if( address == 0x4000 ){
-			this.core.lcd.control_write( data<<4 )
+			this.core.lcd.control_write( (data<<4) & 0xff )
 		}
 		else if( address == 0x4100 ){
-			this.core.lcd.data_write( data<<4 )
+			this.core.lcd.data_write( (data<<4) & 0xff )
 		}
 	
 	}

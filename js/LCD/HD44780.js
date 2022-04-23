@@ -191,7 +191,7 @@ class HD44780 {
 	}
 	
 	set_busy_flag = (usec) => { // TODO (make it so it actaly waits a few steps then sets "m_busy_flag" to false again)
-		this.m_busy_flag = true;
+		//this.m_busy_flag = true;
 		usec = usec * this.m_busy_factor + 0.5;
 		this.m_busy_timer = usec
 	}
