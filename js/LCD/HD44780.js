@@ -22,25 +22,27 @@ class HD44780 {
 		this.m_scroll_display  = 0;
 		
 		this.m_dr = 0;
+		this.m_ir = 0;
 		
 		this.m_rs_state = false;
 		this.m_rw_state = false;
 		
 	}
 	
-	// update_nibble( rs, rw ){
-		// if (this.m_rs_state != rs || this.m_rw_state != rw){
-			// this.m_rs_state = rs;
-			// this.m_rw_state = rw;
-			// this.m_nibble = false;
-		// }
+	update_nibble( rs, rw ){
+		if (this.m_rs_state != rs || this.m_rw_state != rw){
+			this.m_rs_state = rs;
+			this.m_rw_state = rw;
+			this.m_nibble = false;
+		}
 
-		// this.m_nibble = !this.m_nibble;
-	// }
+		this.m_nibble = !this.m_nibble;
+	}
+
 	write( address, data ){
-		// if (this.m_data_len == 4){ // && !machine().side_effects_disabled())
-			// this.update_nibble(address & 0x01, 0);
-		// }
+		if (this.m_data_len == 4){ // && !machine().side_effects_disabled())
+			this.update_nibble((address>>8) & 0x01, 0);
+		}
 		
 		if( address == 0x4000 ){
 			this.core.lcd.control_write( (data<<4) & 0xff )
@@ -50,9 +52,9 @@ class HD44780 {
 		}
 	}
 	read( address ){
-		// if (this.m_data_len == 4){ // && !machine().side_effects_disabled())
-			// this.update_nibble(address & 0x01, 0);
-		// }
+		if (this.m_data_len == 4){ // && !machine().side_effects_disabled())
+			this.update_nibble((address>>8) & 0x01, 0);
+		}
 		if (this.m_busy_flag){
 			return 0x80 | (this.m_ac & 0x7f)
 		} else {
@@ -70,22 +72,18 @@ class HD44780 {
 			//console.log("NIM NIM")
 			if(this.m_nibble){
 				this.m_dr = data & 0xf0;
-				this.m_nibble = false
-				//console.log("NIM "+this.m_dr)
 				return
 			}else{
 				this.m_dr |= ((data >> 4) & 0x0f);
-				//console.log("NOM "+this.m_dr)
-				this.m_nibble = true
 			}
 		} else {
 			this.m_dr = data
-			this.m_nibble = true
 		}
 		console.log("DATA: "+this.m_dr)
 		
 		if (this.m_active_ram = "DDRAM"){
-			this.DDRAM[ this.m_address_pointer ] = data;
+			console.log('data len', this.m_data_len)
+			this.DDRAM[ this.m_address_pointer ] = this.m_dr;
 			this.m_address_pointer += this.m_cursor_direction
 		}
 		this.correct_ac();
@@ -94,32 +92,37 @@ class HD44780 {
 		this.update_debug();
 	}
 	control_write( data ){
-		// IS NOT IN MAME.
-		// if (this.m_busy_flag) {
-			// console.log("HD44780: Ignoring control write "+data+" due of busy flag\n")
-			// return
-		// }
+		if (this.m_data_len == 4) {
+			if (this.m_nibble) {
+				this.m_ir = data & 0xf0;
+				return;
+			} else {
+				this.m_ir |= ((data >> 4) & 0x0f);
+			}
+		} else {
+			this.m_ir = data;
+		}
 		
-		if (this.BIT(data, 7)){
+		if (this.BIT(this.m_ir, 7)){
 			// set DDRAM address
 			this.m_active_ram = "DDRAM";
-			this.m_address_pointer = data & 0x7f;
+			this.m_address_pointer = this.m_ir & 0x7f;
 			this.correct_ac();
 			this.set_busy_flag(37);
 			console.log("HD44780: set DDRAM address "+ this.toHex(this.m_address_pointer));
 			return;
 		}
-		else if (this.BIT(data, 6))
+		else if (this.BIT(this.m_ir, 6))
 		{
 			// set CGRAM address
 			this.m_active_ram = "CGRAM";
-			this.m_address_pointer = data & 0x3f;
+			this.m_address_pointer = this.m_ir & 0x3f;
 			this.set_busy_flag(37);
 
 			console.log("HD44780: set CGRAM address "+ this.toHex(this.m_address_pointer));
 			return;
 		}
-		else if (this.BIT(data, 5))
+		else if (this.BIT(this.m_ir, 5))
 		{
 			// function set
 			// if (!m_function_set_at_any_time && !m_first_cmd && m_data_len == (BIT(data, 4) ? 8 : 4) && (m_char_size != (BIT(data, 2) ? 10 : 8) || m_num_line != (BIT(data, 3) + 1)))
@@ -129,22 +132,22 @@ class HD44780 {
 			// }
 			//m_first_cmd = true;
 
-			this.m_char_size = this.BIT(data, 2) ? 10 : 8;
-			this.m_data_len  = this.BIT(data, 4) ? 8 : 4;
-			this.m_num_line  = this.BIT(data, 3) + 1;
+			this.m_char_size = this.BIT(this.m_ir, 2) ? 10 : 8;
+			this.m_data_len  = this.BIT(this.m_ir, 4) ? 8 : 4;
+			this.m_num_line  = this.BIT(this.m_ir, 3) + 1;
 			this.correct_ac();
 			this.set_busy_flag(37);
 
 			console.log("HD44780: char size "+this.m_char_size+", data len "+this.m_data_len+", lines "+this.m_num_line);
 			return;
 		}
-		else if (this.BIT(data, 4))
+		else if (this.BIT(this.m_ir, 4))
 		{
 			// cursor or display shift
-			this.m_cursor_direction = (this.BIT(data, 2)) ? +1 : -1;
+			this.m_cursor_direction = (this.BIT(this.m_ir, 2)) ? +1 : -1;
 
 			
-			if (this.BIT(data, 3)){
+			if (this.BIT(this.m_ir, 3)){
 				// shift_display(direction);
 				console.log("HD44780: shift display: "+this.m_cursor_direction);
 			}else{
@@ -154,35 +157,35 @@ class HD44780 {
 			this.set_busy_flag(37);
 			return;
 		}
-		else if (this.BIT(data, 3))
+		else if (this.BIT(this.m_ir, 3))
 		{
 			// display on/off control
-			this.m_display_on = this.BIT(data, 2);
-			this.m_cursor_on  = this.BIT(data, 1);
-			this.m_blink_on   = this.BIT(data, 0);
+			this.m_display_on = this.BIT(this.m_ir, 2);
+			this.m_cursor_on  = this.BIT(this.m_ir, 1);
+			this.m_blink_on   = this.BIT(this.m_ir, 0);
 			this.set_busy_flag(37);
 
 			console.log("HD44780: display "+this.m_display_on+", cursor "+this.m_cursor_on+", blink "+this.m_blink_on);
 			return;
 		}
-		else if (this.BIT(data, 2))
+		else if (this.BIT(this.m_ir, 2))
 		{
 			// // entry mode set
-			this.m_cursor_direction = (this.BIT(data, 1)) ? +1 : -1;
-			this.m_scroll_display  = this.BIT(data, 0);
+			this.m_cursor_direction = (this.BIT(this.m_ir, 1)) ? +1 : -1;
+			this.m_scroll_display  = this.BIT(this.m_ir, 0);
 			this.set_busy_flag(37);
 
 			console.log("HD44780: entry mode set: direction "+this.m_cursor_direction+", shift "+this.m_scroll_display);
 			return;
 		}
-		else if (this.BIT(data, 1))
+		else if (this.BIT(this.m_ir, 1))
 		{
 			// return home
 			console.log("HD44780: Cursor home\n");
 			set_busy_flag(1520);
 			return;
 		}
-		else if (this.BIT(data, 0))
+		else if (this.BIT(this.m_ir, 0))
 		{
 			// clear display
 			console.log("HD44780: clear display\n");

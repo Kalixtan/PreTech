@@ -115,7 +115,7 @@ Jump_00_009e:
 
 	res 5, (hl)                                                  ; $00b4 : $cb, $ae
 	ld a, $0b                                                  ; $00b6 : $3e, $0b
-	call Call_00_048e                                                  ; $00b8 : $cd, $8e, $04
+	call WriteAtoLCDCtrlport                                                  ; $00b8 : $cd, $8e, $04
 
 @cont_00bb:
 	ld hl, $410a                                                  ; $00bb : $21, $0a, $41
@@ -452,33 +452,33 @@ Call_00_024d:
 
 Call_00_0290:
 	ld a, $10                                                  ; $0290 : $3e, $10
-	call Call_00_048e                                                  ; $0292 : $cd, $8e, $04
+	call WriteAtoLCDCtrlport                                                  ; $0292 : $cd, $8e, $04
 	ld a, $13                                                  ; $0295 : $3e, $13
-	call Call_00_048e                                                  ; $0297 : $cd, $8e, $04
+	call WriteAtoLCDCtrlport                                                  ; $0297 : $cd, $8e, $04
 	ld a, $20                                                  ; $029a : $3e, $20
-	call Call_00_048e                                                  ; $029c : $cd, $8e, $04
+	call WriteAtoLCDCtrlport                                                  ; $029c : $cd, $8e, $04
 	ld a, $40                                                  ; $029f : $3e, $40
-	call Call_00_048e                                                  ; $02a1 : $cd, $8e, $04
+	call WriteAtoLCDCtrlport                                                  ; $02a1 : $cd, $8e, $04
 	ld a, $40                                                  ; $02a4 : $3e, $40
-	call Call_00_048e                                                  ; $02a6 : $cd, $8e, $04
+	call WriteAtoLCDCtrlport                                                  ; $02a6 : $cd, $8e, $04
 	ld a, $44                                                  ; $02a9 : $3e, $44
-	call Call_00_048e                                                  ; $02ab : $cd, $8e, $04
+	call WriteAtoLCDCtrlport                                                  ; $02ab : $cd, $8e, $04
 	ld a, $46                                                  ; $02ae : $3e, $46
-	call Call_00_048e                                                  ; $02b0 : $cd, $8e, $04
+	call WriteAtoLCDCtrlport                                                  ; $02b0 : $cd, $8e, $04
 	ld a, $47                                                  ; $02b3 : $3e, $47
-	call Call_00_048e                                                  ; $02b5 : $cd, $8e, $04
+	call WriteAtoLCDCtrlport                                                  ; $02b5 : $cd, $8e, $04
 	ld a, $46                                                  ; $02b8 : $3e, $46
-	call Call_00_048e                                                  ; $02ba : $cd, $8e, $04
+	call WriteAtoLCDCtrlport                                                  ; $02ba : $cd, $8e, $04
 	ld a, $44                                                  ; $02bd : $3e, $44
-	call Call_00_048e                                                  ; $02bf : $cd, $8e, $04
+	call WriteAtoLCDCtrlport                                                  ; $02bf : $cd, $8e, $04
 	ld a, $40                                                  ; $02c2 : $3e, $40
-	call Call_00_048e                                                  ; $02c4 : $cd, $8e, $04
+	call WriteAtoLCDCtrlport                                                  ; $02c4 : $cd, $8e, $04
 	ld a, $08                                                  ; $02c7 : $3e, $08
-	call Call_00_048e                                                  ; $02c9 : $cd, $8e, $04
+	call WriteAtoLCDCtrlport                                                  ; $02c9 : $cd, $8e, $04
 	ld a, $04                                                  ; $02cc : $3e, $04
-	call Call_00_048e                                                  ; $02ce : $cd, $8e, $04
+	call WriteAtoLCDCtrlport                                                  ; $02ce : $cd, $8e, $04
 	ld a, $0f                                                  ; $02d1 : $3e, $0f
-	call Call_00_048e                                                  ; $02d3 : $cd, $8e, $04
+	call WriteAtoLCDCtrlport                                                  ; $02d3 : $cd, $8e, $04
 	ret                                                  ; $02d6 : $c9
 
 
@@ -487,11 +487,11 @@ Call_00_02d7:
 	ld hl, $416b                                                  ; $02d8 : $21, $6b, $41
 	ld c, $95                                                  ; $02db : $0e, $95
 
-br_00_02dd:
-	ld (hl), $20                                                  ; $02dd : $36, $20
+;
+-	ld (hl), $20                                                  ; $02dd : $36, $20
 	inc hl                                                  ; $02df : $23
 	dec c                                                  ; $02e0 : $0d
-	jr nz, br_00_02dd                                                  ; $02e1 : $20, $fa
+	jr nz, -                                                  ; $02e1 : $20, $fa
 
 	ld hl, $4161                                                  ; $02e3 : $21, $61, $41
 	res 0, (hl)                                                  ; $02e6 : $cb, $86
@@ -811,31 +811,40 @@ Call_00_047a:
 	ret                                                  ; $048d : $c9
 
 
-Call_00_048e:
+WriteAtoLCDCtrlport:
 	ld bc, $4000                                                  ; $048e : $01, $00, $40
 
-Call_00_0491:
+; B - $40: control, $41: data
+WriteAtoLCDport:
 	di                                                  ; $0491 : $f3
 	push hl                                                  ; $0492 : $e5
+
+;
 	push af                                                  ; $0493 : $f5
 	ld a, ($4112)                                                  ; $0494 : $3a, $12, $41
 	ld c, a                                                  ; $0497 : $4f
 	pop af                                                  ; $0498 : $f1
+
 	ld d, a                                                  ; $0499 : $57
+
+; Send over the low nybble
 	rra                                                  ; $049a : $1f
 	rra                                                  ; $049b : $1f
 	rra                                                  ; $049c : $1f
 	rra                                                  ; $049d : $1f
 	out (c), a                                                  ; $049e : $ed, $79
+
+; Send over the high nybble
 	ld a, d                                                  ; $04a0 : $7a
 	out (c), a                                                  ; $04a1 : $ed, $79
+
+; Reading ctrl, wait until not busy
 	res 0, b                                                  ; $04a3 : $cb, $80
-
-br_00_04a5:
-	in a, (c)                                                  ; $04a5 : $ed, $78
+-	in a, (c)                                                  ; $04a5 : $ed, $78
 	bit 3, a                                                  ; $04a7 : $cb, $5f
-	jr nz, br_00_04a5                                                  ; $04a9 : $20, $fa
+	jr nz, -                                                  ; $04a9 : $20, $fa
 
+;
 	set 0, c                                                  ; $04ab : $cb, $c1
 	out (c), a                                                  ; $04ad : $ed, $79
 	pop hl                                                  ; $04af : $e1
@@ -856,9 +865,9 @@ Call_00_04b2:
 
 Call_00_04c4:
 	ld a, $0d                                                  ; $04c4 : $3e, $0d
-	call Call_00_048e                                                  ; $04c6 : $cd, $8e, $04
+	call WriteAtoLCDCtrlport                                                  ; $04c6 : $cd, $8e, $04
 	ld a, $80                                                  ; $04c9 : $3e, $80
-	call Call_00_048e                                                  ; $04cb : $cd, $8e, $04
+	call WriteAtoLCDCtrlport                                                  ; $04cb : $cd, $8e, $04
 	ld hl, $4290                                                  ; $04ce : $21, $90, $42
 
 br_00_04d1:
@@ -868,7 +877,7 @@ br_00_04d3:
 	ld a, (hl)                                                  ; $04d3 : $7e
 	push bc                                                  ; $04d4 : $c5
 	ld bc, $4100                                                  ; $04d5 : $01, $00, $41
-	call Call_00_0491                                                  ; $04d8 : $cd, $91, $04
+	call WriteAtoLCDport                                                  ; $04d8 : $cd, $91, $04
 	pop bc                                                  ; $04db : $c1
 	inc hl                                                  ; $04dc : $23
 	dec c                                                  ; $04dd : $0d
@@ -878,19 +887,19 @@ br_00_04d3:
 	jr z, br_00_04ec                                                  ; $04e1 : $28, $09
 
 	ld a, $c0                                                  ; $04e3 : $3e, $c0
-	call Call_00_048e                                                  ; $04e5 : $cd, $8e, $04
+	call WriteAtoLCDCtrlport                                                  ; $04e5 : $cd, $8e, $04
 	ld b, $01                                                  ; $04e8 : $06, $01
 	jr br_00_04d1                                                  ; $04ea : $18, $e5
 
 br_00_04ec:
 	ld a, $0d                                                  ; $04ec : $3e, $0d
-	call Call_00_048e                                                  ; $04ee : $cd, $8e, $04
+	call WriteAtoLCDCtrlport                                                  ; $04ee : $cd, $8e, $04
 	ret                                                  ; $04f1 : $c9
 
 
 Call_00_04f2:
 	ld a, $0a                                                  ; $04f2 : $3e, $0a
-	call Call_00_048e                                                  ; $04f4 : $cd, $8e, $04
+	call WriteAtoLCDCtrlport                                                  ; $04f4 : $cd, $8e, $04
 
 Call_00_04f7:
 	ld a, ($4169)                                                  ; $04f7 : $3a, $69, $41
@@ -898,16 +907,16 @@ Call_00_04f7:
 	jr nc, br_00_0505                                                  ; $04fc : $30, $07
 
 	add a, $80                                                  ; $04fe : $c6, $80
-	call Call_00_048e                                                  ; $0500 : $cd, $8e, $04
+	call WriteAtoLCDCtrlport                                                  ; $0500 : $cd, $8e, $04
 	jr br_00_050a                                                  ; $0503 : $18, $05
 
 br_00_0505:
 	add a, $b6                                                  ; $0505 : $c6, $b6
-	call Call_00_048e                                                  ; $0507 : $cd, $8e, $04
+	call WriteAtoLCDCtrlport                                                  ; $0507 : $cd, $8e, $04
 
 br_00_050a:
 	ld a, $0f                                                  ; $050a : $3e, $0f
-	call Call_00_048e                                                  ; $050c : $cd, $8e, $04
+	call WriteAtoLCDCtrlport                                                  ; $050c : $cd, $8e, $04
 	ret                                                  ; $050f : $c9
 
 
@@ -1085,12 +1094,12 @@ br_00_05ff:
 
 
 	ld a, $0f                                                  ; $0600 : $3e, $0f
-	call Call_00_048e                                                  ; $0602 : $cd, $8e, $04
+	call WriteAtoLCDCtrlport                                                  ; $0602 : $cd, $8e, $04
 
 Call_00_0605:
 br_00_0605:
 	ld a, $0e                                                  ; $0605 : $3e, $0e
-	call Call_00_048e                                                  ; $0607 : $cd, $8e, $04
+	call WriteAtoLCDCtrlport                                                  ; $0607 : $cd, $8e, $04
 	ld hl, $4114                                                  ; $060a : $21, $14, $41
 	ld (hl), $00                                                  ; $060d : $36, $00
 	inc hl                                                  ; $060f : $23
@@ -1231,7 +1240,7 @@ br_00_06c8:
 	jr z, br_00_06b5                                                  ; $06c9 : $28, $ea
 
 	ld a, $c9                                                  ; $06cb : $3e, $c9
-	call Call_00_048e                                                  ; $06cd : $cd, $8e, $04
+	call WriteAtoLCDCtrlport                                                  ; $06cd : $cd, $8e, $04
 	ld hl, $4115                                                  ; $06d0 : $21, $15, $41
 	ld a, (hl)                                                  ; $06d3 : $7e
 	add a, $04                                                  ; $06d4 : $c6, $04
@@ -1244,7 +1253,7 @@ br_00_06c8:
 
 br_00_06de:
 	ld bc, $4100                                                  ; $06de : $01, $00, $41
-	call Call_00_0491                                                  ; $06e1 : $cd, $91, $04
+	call WriteAtoLCDport                                                  ; $06e1 : $cd, $91, $04
 	jp Jump_00_061e                                                  ; $06e4 : $c3, $1e, $06
 
 
@@ -2066,7 +2075,7 @@ br_00_0b1b:
 br_00_0b3a:
 	push af                                                  ; $0b3a : $f5
 	ld bc, $4100                                                  ; $0b3b : $01, $00, $41
-	call Call_00_0491                                                  ; $0b3e : $cd, $91, $04
+	call WriteAtoLCDport                                                  ; $0b3e : $cd, $91, $04
 	call Call_00_03dd                                                  ; $0b41 : $cd, $dd, $03
 	call Call_00_073b                                                  ; $0b44 : $cd, $3b, $07
 	pop af                                                  ; $0b47 : $f1
@@ -4642,7 +4651,7 @@ br_00_1af4:
 Call_00_1afb:
 br_00_1afb:
 	ld a, $0e                                                  ; $1afb : $3e, $0e
-	call Call_00_048e                                                  ; $1afd : $cd, $8e, $04
+	call WriteAtoLCDCtrlport                                                  ; $1afd : $cd, $8e, $04
 	call Call_00_03dd                                                  ; $1b00 : $cd, $dd, $03
 	ld a, ($4118)                                                  ; $1b03 : $3a, $18, $41
 	cp $02                                                  ; $1b06 : $fe, $02
@@ -9739,7 +9748,7 @@ Jump_00_345d:
 	ld (hl), $00                                                  ; $3460 : $36, $00
 	push af                                                  ; $3462 : $f5
 	ld bc, $4100                                                  ; $3463 : $01, $00, $41
-	call Call_00_0491                                                  ; $3466 : $cd, $91, $04
+	call WriteAtoLCDport                                                  ; $3466 : $cd, $91, $04
 	call Call_00_03dd                                                  ; $3469 : $cd, $dd, $03
 	pop af                                                  ; $346c : $f1
 	ld hl, $462b                                                  ; $346d : $21, $2b, $46

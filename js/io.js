@@ -20,7 +20,6 @@ class IO {
 		}
 	}
 	writeport( address, data ){
-		if(data == undefined)return //data = 0 // shouldnt be here....?
 		if(this.core.info.io)console.log("          writeport: "+this.toHex(address)+" - "+this.toBin(data))
 		
 	
