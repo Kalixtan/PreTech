@@ -6,13 +6,16 @@ class IO {
 	readport( address ){
 		if(this.core.info.io)console.log("          readport : "+this.toHex(address))
 		
-		// HD44780
-		if( address == 0x4000 ){
+	
+		if( address < 0x01ff ){
 			console.log("          readport : "+this.toHex(address))
+			return 0xff
+		}
+		// HD44780
+		else if( address == 0x4000 ){
 			return this.core.lcd.read(0x4000)
 		}
 		else if( address == 0x4100 ){
-			//console.log("          readport : "+this.toHex(address))
 			return this.core.lcd.read(0x4100)
 		}
 	}
