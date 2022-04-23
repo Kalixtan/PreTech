@@ -68,6 +68,7 @@ class HD44780 {
 				return 0 | (this.m_ac & 0x7f)
 			}
 		}
+		
 		return null
 	}
 	data_write( data ){

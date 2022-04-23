@@ -1,3 +1,5 @@
+"use strict";
+
 const main = new CORE();
 document.getElementById("fileInput").addEventListener("change", (e) => {
 	main.reset();
@@ -13,6 +15,15 @@ document.getElementById("fileInput").addEventListener("change", (e) => {
 });
 
 
+const is_key_down = (() => {
+	return true
+	const state = {};
+
+	window.addEventListener('keyup', (e) => state[e.key] = false);
+	window.addEventListener('keydown', (e) => state[e.key] = true);
+
+	return (key) => state.hasOwnProperty(key) && state[key] || false;
+})();
 
 /// LAZY LOOP!
 function loop(timestamp) {
