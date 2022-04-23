@@ -17,6 +17,7 @@ class IO {
 		
 		if (output == null){ // just incase nothing comes up
 			output = 0;
+			console.log("          UNKNOWN IO : "+this.toHex(address))
 		}
 		return output
 	}

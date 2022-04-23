@@ -1,6 +1,8 @@
 'use strict';
 class HD44780 {
 	constructor(core) {
+		this.debug = false;
+		
 		this.core = core;
 		this.read_mode = false;
 		
@@ -67,7 +69,7 @@ class HD44780 {
 	data_write( data ){
 		
 		if (this.m_busy_flag) {
-			console.log("HD44780: Ignoring data write "+data+" due of busy flag\n")
+			if(this.debug)console.log("HD44780: Ignoring data write "+data+" due of busy flag\n")
 			return
 		}
 		
@@ -82,10 +84,10 @@ class HD44780 {
 		} else {
 			this.m_dr = data
 		}
-		console.log("DATA: "+this.m_dr +"   "+this.m_active_ram)
+		//console.log("DATA: "+this.m_dr +"   "+this.m_active_ram)
 		
 		
-		console.log('data len', this.m_data_len)
+		//console.log('data len', this.m_data_len)
 		if (this.m_active_ram = "DDRAM"){
 			this.DDRAM[ this.m_address_pointer ] = this.m_dr;
 		} else {
@@ -127,7 +129,7 @@ class HD44780 {
 			this.m_address_pointer = this.m_ir & 0x7f;
 			this.correct_ac();
 			this.set_busy_flag(37);
-			console.log("HD44780: set DDRAM address "+ this.toHex(this.m_address_pointer));
+			if(this.debug)console.log("HD44780: set DDRAM address "+ this.toHex(this.m_address_pointer));
 			return;
 		}
 		else if (this.BIT(this.m_ir, 6))
@@ -137,7 +139,7 @@ class HD44780 {
 			this.m_address_pointer = this.m_ir & 0x3f;
 			this.set_busy_flag(37);
 
-			console.log("HD44780: set CGRAM address "+ this.toHex(this.m_address_pointer));
+			if(this.debug)console.log("HD44780: set CGRAM address "+ this.toHex(this.m_address_pointer));
 			return;
 		}
 		else if (this.BIT(this.m_ir, 5))
@@ -156,7 +158,7 @@ class HD44780 {
 			this.correct_ac();
 			this.set_busy_flag(37);
 
-			console.log("HD44780: char size "+this.m_char_size+", data len "+this.m_data_len+", lines "+this.m_num_line);
+			if(this.debug)console.log("HD44780: char size "+this.m_char_size+", data len "+this.m_data_len+", lines "+this.m_num_line);
 			return;
 		}
 		else if (this.BIT(this.m_ir, 4))
@@ -167,12 +169,12 @@ class HD44780 {
 			
 			if (this.BIT(this.m_ir, 3)){
 				this.shift_display(this.m_cursor_direction);
-				console.log("HD44780: shift display: "+this.m_cursor_direction);
+				if(this.debug)console.log("HD44780: shift display: "+this.m_cursor_direction);
 			}else{
 				//update_ac(direction);
 				this.m_address_pointer += this.m_cursor_direction
 				this.correct_ac();
-				console.log("HD44780: shift cursor: "+this.m_cursor_direction);
+				if(this.debug)console.log("HD44780: shift cursor: "+this.m_cursor_direction);
 			}
 			this.set_busy_flag(37);
 			return;
@@ -185,7 +187,7 @@ class HD44780 {
 			this.m_blink_on   = this.BIT(this.m_ir, 0);
 			this.set_busy_flag(37);
 
-			console.log("HD44780: display "+this.m_display_on+", cursor "+this.m_cursor_on+", blink "+this.m_blink_on);
+			if(this.debug)console.log("HD44780: display "+this.m_display_on+", cursor "+this.m_cursor_on+", blink "+this.m_blink_on);
 			return;
 		}
 		else if (this.BIT(this.m_ir, 2))
@@ -195,20 +197,20 @@ class HD44780 {
 			this.m_scroll_display  = this.BIT(this.m_ir, 0);
 			this.set_busy_flag(37);
 
-			console.log("HD44780: entry mode set: direction "+this.m_cursor_direction+", shift "+this.m_scroll_display);
+			if(this.debug)console.log("HD44780: entry mode set: direction "+this.m_cursor_direction+", shift "+this.m_scroll_display);
 			return;
 		}
 		else if (this.BIT(this.m_ir, 1))
 		{
 			// return home
-			console.log("HD44780: Cursor home\n");
+			if(this.debug)console.log("HD44780: Cursor home\n");
 			set_busy_flag(1520);
 			return;
 		}
 		else if (this.BIT(this.m_ir, 0))
 		{
 			// clear display
-			console.log("HD44780: clear display\n");
+			if(this.debug)console.log("HD44780: clear display\n");
 			set_busy_flag(1520);
 			return;
 		}
