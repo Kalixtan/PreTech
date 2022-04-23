@@ -13,20 +13,46 @@ class HD44780 {
 		this.m_busy_factor = 1.0;
 		
 		this.m_char_size = 10
-		this.m_nibble = 0;
+		this.m_nibble = false;
 		this.m_data_len = 8
 		this.m_num_line = 0
 		
 		this.m_address_pointer = 0;
-		this.m_cursor_direction = 0;
+		this.m_cursor_direction = 1;
 		this.m_scroll_display  = 0;
 		
 		this.m_dr = 0;
 		
+		this.m_rs_state = false;
+		this.m_rw_state = false;
 		
 	}
 	
+	// update_nibble( rs, rw ){
+		// if (this.m_rs_state != rs || this.m_rw_state != rw){
+			// this.m_rs_state = rs;
+			// this.m_rw_state = rw;
+			// this.m_nibble = false;
+		// }
+
+		// this.m_nibble = !this.m_nibble;
+	// }
+	write( address, data ){
+		// if (this.m_data_len == 4){ // && !machine().side_effects_disabled())
+			// this.update_nibble(address & 0x01, 0);
+		// }
+		
+		if( address == 0x4000 ){
+			this.core.lcd.control_write( (data<<4) & 0xff )
+		}
+		else if( address == 0x4100 ){
+			this.core.lcd.data_write( (data<<4) & 0xff )
+		}
+	}
 	read( address ){
+		// if (this.m_data_len == 4){ // && !machine().side_effects_disabled())
+			// this.update_nibble(address & 0x01, 0);
+		// }
 		if (this.m_busy_flag){
 			return 0x80 | (this.m_ac & 0x7f)
 		} else {
@@ -41,14 +67,20 @@ class HD44780 {
 		}
 		
 		if (this.m_data_len == 4){ // UNTESTSED (copyed from mame)
+			//console.log("NIM NIM")
 			if(this.m_nibble){
 				this.m_dr = data & 0xf0;
+				this.m_nibble = false
+				//console.log("NIM "+this.m_dr)
 				return
 			}else{
 				this.m_dr |= ((data >> 4) & 0x0f);
+				//console.log("NOM "+this.m_dr)
+				this.m_nibble = true
 			}
 		} else {
 			this.m_dr = data
+			this.m_nibble = true
 		}
 		console.log("DATA: "+this.m_dr)
 		
@@ -56,6 +88,8 @@ class HD44780 {
 			this.DDRAM[ this.m_address_pointer ] = data;
 			this.m_address_pointer += this.m_cursor_direction
 		}
+		this.correct_ac();
+		
 		this.set_busy_flag(41);
 		this.update_debug();
 	}
@@ -70,7 +104,7 @@ class HD44780 {
 			// set DDRAM address
 			this.m_active_ram = "DDRAM";
 			this.m_address_pointer = data & 0x7f;
-			// correct_ac();
+			this.correct_ac();
 			this.set_busy_flag(37);
 			console.log("HD44780: set DDRAM address "+ this.toHex(this.m_address_pointer));
 			return;
@@ -98,7 +132,7 @@ class HD44780 {
 			this.m_char_size = this.BIT(data, 2) ? 10 : 8;
 			this.m_data_len  = this.BIT(data, 4) ? 8 : 4;
 			this.m_num_line  = this.BIT(data, 3) + 1;
-			//correct_ac();
+			this.correct_ac();
 			this.set_busy_flag(37);
 
 			console.log("HD44780: char size "+this.m_char_size+", data len "+this.m_data_len+", lines "+this.m_num_line);
@@ -196,6 +230,24 @@ class HD44780 {
 		this.m_busy_timer = usec
 	}
 	
+	correct_ac(){
+		
+		if (this.m_active_ram == "DDRAM")
+		{
+			var max_ac = (this.m_num_line == 1) ? 0x4f : 0x67;
+
+			if (this.m_ac > max_ac){
+				this.m_ac -= max_ac + 1;
+			} else if (this.m_ac < 0){
+				this.m_ac = max_ac;
+			} else if (this.m_num_line == 2 && this.m_ac > 0x27 && this.m_ac < 0x40){
+				this.m_ac = 0x40 + (this.m_ac - 0x28);
+			}
+		}
+		else{
+			this.m_ac &= 0x3f;
+		}
+	}
 }
 
 
