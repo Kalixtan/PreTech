@@ -16,7 +16,7 @@ class HD44780 {
 		
 		this.m_char_size = 10
 		this.m_nibble = false;
-		this.m_data_len = 4
+		this.m_data_len = 8
 		this.m_num_line = 0
 		
 		this.m_address_pointer = 0;
@@ -122,7 +122,7 @@ class HD44780 {
 		} else {
 			this.m_ir = data;
 		}
-		
+
 		if (this.BIT(this.m_ir, 7)){
 			// set DDRAM address
 			this.m_active_ram = "DDRAM";
@@ -153,7 +153,7 @@ class HD44780 {
 			//m_first_cmd = true;
 
 			this.m_char_size = this.BIT(this.m_ir, 2) ? 10 : 8;
-			//this.m_data_len  = this.BIT(this.m_ir, 4) ? 8 : 4;
+			this.m_data_len  = this.BIT(this.m_ir, 4) ? 8 : 4;
 			this.m_num_line  = this.BIT(this.m_ir, 3) + 1;
 			this.correct_ac();
 			this.set_busy_flag(37);
@@ -248,7 +248,7 @@ class HD44780 {
 	}
 	
 	BIT( data, index ){
-		return (data & (1 << index)) === 0;
+		return (data & (1 << index)) !== 0;
 	}
 	toHex = (v) => {
 		return '0x' + (('0000' + v.toString(16).toUpperCase()));
