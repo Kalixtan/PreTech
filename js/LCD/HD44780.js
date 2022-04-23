@@ -94,6 +94,7 @@ class HD44780 {
 			this.CGRAM[ this.m_address_pointer ] = this.m_dr;
 		}
 		this.m_address_pointer += this.m_cursor_direction
+
 		
 		this.correct_ac();
 		
@@ -164,7 +165,7 @@ class HD44780 {
 		else if (this.BIT(this.m_ir, 4))
 		{
 			// cursor or display shift
-			this.m_cursor_direction = (this.BIT(this.m_ir, 2)) ? +1 : -1;
+			this.m_cursor_direction = (~this.BIT(this.m_ir, 2)) ? +1 : -1;
 
 			
 			if (this.BIT(this.m_ir, 3)){
@@ -193,7 +194,7 @@ class HD44780 {
 		else if (this.BIT(this.m_ir, 2))
 		{
 			// // entry mode set
-			this.m_cursor_direction = (this.BIT(this.m_ir, 1)) ? +1 : -1;
+			this.m_cursor_direction = (!this.BIT(this.m_ir, 1)) ? +1 : -1;
 			this.m_scroll_display  = this.BIT(this.m_ir, 0);
 			this.set_busy_flag(37);
 
@@ -204,14 +205,14 @@ class HD44780 {
 		{
 			// return home
 			if(this.debug)console.log("HD44780: Cursor home\n");
-			set_busy_flag(1520);
+			this.set_busy_flag(1520);
 			return;
 		}
 		else if (this.BIT(this.m_ir, 0))
 		{
 			// clear display
 			if(this.debug)console.log("HD44780: clear display\n");
-			set_busy_flag(1520);
+			this.set_busy_flag(1520);
 			return;
 		}
 		this.update_debug();
