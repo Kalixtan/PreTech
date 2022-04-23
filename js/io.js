@@ -6,18 +6,19 @@ class IO {
 	readport( address ){
 		if(this.core.info.io)console.log("          readport : "+this.toHex(address))
 		
-	
-		if( address < 0x01ff ){
-			console.log("          readport : "+this.toHex(address))
-			return 0xff
+		var output = null;
+		
+		if (output == null){
+			output = this.core.keyboard.read(address);
 		}
-		// HD44780
-		else if( address == 0x4000 ){
-			return this.core.lcd.read(0x4000)
+		if (output == null){
+			output = this.core.lcd.read(address);
 		}
-		else if( address == 0x4100 ){
-			return this.core.lcd.read(0x4100)
+		
+		if (output == null){ // just incase nothing comes up
+			output = 0;
 		}
+		return output
 	}
 	writeport( address, data ){
 		if(this.core.info.io)console.log("          writeport: "+this.toHex(address)+" - "+this.toBin(data))

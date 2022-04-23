@@ -4,6 +4,7 @@ class CORE {
 		this.io = new IO(this);
 		this.mem = new RAM(this);
 		this.cpu = new Z80(this, this.mem);
+		this.keyboard = new PRC1000_Keyboard(this);
 		this.rom = null;
 		this.lcd = new HD44780(this);
 		this.info = {

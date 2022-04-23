@@ -52,14 +52,17 @@ class HD44780 {
 		}
 	}
 	read( address ){
-		if (this.m_data_len == 4){ // && !machine().side_effects_disabled())
-			this.update_nibble((address>>8) & 0x01, 0);
+		if( address == 0x4000 || address == 0x4100 ){ // feels like this is likely wrong
+			if (this.m_data_len == 4){ // && !machine().side_effects_disabled())
+				this.update_nibble((address>>8) & 0x01, 0);
+			}
+			if (this.m_busy_flag){
+				return 0x80 | (this.m_ac & 0x7f)
+			} else {
+				return 0 | (this.m_ac & 0x7f)
+			}
 		}
-		if (this.m_busy_flag){
-			return 0x80 | (this.m_ac & 0x7f)
-		} else {
-			return 0 | (this.m_ac & 0x7f)
-		}
+		return null
 	}
 	data_write( data ){
 		
