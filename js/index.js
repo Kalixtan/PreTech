@@ -15,12 +15,13 @@ document.getElementById("fileInput").addEventListener("change", (e) => {
 
 /// LAZY LOOP!
 function loop(timestamp) {
-  var dt = timestamp - lastRender
+	var dt = timestamp - lastRender
 
-  main.update(dt)
+	main.update(dt)
+	main.lcd.update_debug()
 
-  lastRender = timestamp
-  window.requestAnimationFrame(loop)
+	lastRender = timestamp
+	window.requestAnimationFrame(loop)
 }
 var lastRender = 0
 window.requestAnimationFrame(loop)
