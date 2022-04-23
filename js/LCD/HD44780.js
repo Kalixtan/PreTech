@@ -14,7 +14,7 @@ class HD44780 {
 		
 		this.m_char_size = 10
 		this.m_nibble = false;
-		this.m_data_len = 8
+		this.m_data_len = 4
 		this.m_num_line = 0
 		
 		this.m_address_pointer = 0;
@@ -151,7 +151,7 @@ class HD44780 {
 			//m_first_cmd = true;
 
 			this.m_char_size = this.BIT(this.m_ir, 2) ? 10 : 8;
-			this.m_data_len  = this.BIT(this.m_ir, 4) ? 8 : 4;
+			//this.m_data_len  = this.BIT(this.m_ir, 4) ? 8 : 4;
 			this.m_num_line  = this.BIT(this.m_ir, 3) + 1;
 			this.correct_ac();
 			this.set_busy_flag(37);
@@ -225,7 +225,7 @@ class HD44780 {
 	buf2char(buffer) { // buffer is an ArrayBuffer
 		return [...new Uint8Array(buffer)]
 			.map(x => String.fromCharCode(x))
-			.join(' ');
+			.join('');
 	}
 	
 	buf2hex(buffer) { // buffer is an ArrayBuffer
