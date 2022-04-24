@@ -300,7 +300,7 @@ class render_character_LCD {
 		
 		// clear canvas
 		ctx.fillStyle = this.BackColor;
-		ctx.fillRect(0, 0, 640, 500);
+		ctx.fillRect(0, 0, 99999999, 99999999);
 		
 		
 		// draw chars

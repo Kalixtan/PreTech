@@ -30,10 +30,10 @@ class IO {
 	
 	}
 	toBin = (v) => {
-		return '0x' + (('0000' + v.toString(2).toUpperCase()));
+		return '0b' + ((v.toString(2).toUpperCase()));
 	}
 	toHex = (v) => {
-		return '0x' + (('0000' + v.toString(16).toUpperCase()));
+		return '0x' + ((v.toString(16).toUpperCase()));
 	}
   
 	reset(hard) {

@@ -46,7 +46,7 @@ class RAM {
     this.write(address + 1, data >> 8);
   };
   toHex = (v) => {
-    return '0x' + (('0000' + v.toString(16).toUpperCase()).substr(-4));
+    return '0x' + ((v.toString(16).toUpperCase()).substr(-4));
   }
   reset(hard) {
     this.mem.fill(0);
