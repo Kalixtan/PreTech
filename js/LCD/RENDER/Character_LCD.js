@@ -11,11 +11,12 @@ class render_character_LCD {
 		
 		this.pixel_size = 4;
 		this.pixel_space = 5;
-		this.char_space = 6;
-		this.border = 8;
+		this.char_space_x = 6;
+		this.char_space_y = 9;
+		this.border = 12;
 		
 		this.font = [
-			[],[],[],[],
+			[],[],[],[], // TODO: add subport for custom graphics!!!
 			[],[],[],[],
 			[],[],[],[],
 			[],[],[],[],
@@ -270,8 +271,8 @@ class render_character_LCD {
 			var line = data[x];
 			for (var y = 0; y < 8; y++) {
 				
-				var real_x = ((char_x*this.char_space)+x)*this.pixel_space
-				var real_y = ((char_y*this.char_space)+y)*this.pixel_space
+				var real_x = ((char_x*this.char_space_x)+x)*this.pixel_space
+				var real_y = ((char_y*this.char_space_y)+y)*this.pixel_space
 				
 				ctx.fillStyle =  (( (line & (1 << (7-y))) !== 0 ) ? this.PixelOnColor : this.PixelOffColor);
 				ctx.fillRect(this.border+real_x, this.border+real_y, this.pixel_size, this.pixel_size);
@@ -282,6 +283,10 @@ class render_character_LCD {
 	render( canvas ) {
 		if (!canvas.getContext) return // canvas-unsupported
 		var ctx = canvas.getContext('2d');
+		
+		
+		canvas.height = (this.layout.length   *(this.char_space_y-1)*this.pixel_space) + (this.border*2);
+		canvas.width  = (this.layout[0].length*(this.char_space_x-1)*this.pixel_space) + (this.border*2);
 		
 		
 		ctx.fillStyle = this.BackColor;
