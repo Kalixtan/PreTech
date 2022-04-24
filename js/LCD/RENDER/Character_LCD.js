@@ -15,6 +15,8 @@ class render_character_LCD {
 		this.char_space_y = 9;
 		this.border = 12;
 		
+		this.ghosting_ammount = 0.2
+		
 		this.font = [
 			[],[],[],[], // TODO: add subport for custom graphics!!!
 			[],[],[],[],
@@ -285,14 +287,23 @@ class render_character_LCD {
 		var ctx = canvas.getContext('2d');
 		
 		
-		canvas.height = (this.layout.length   *(this.char_space_y-1)*this.pixel_space) + (this.border*2);
-		canvas.width  = (this.layout[0].length*(this.char_space_x  )*this.pixel_space) + (this.border*2);
+		// update canvas size if its wrong
+		var canvas_height = (this.layout.length   *(this.char_space_y-1)*this.pixel_space) + (this.border*2);
+		var canvas_width  = (this.layout[0].length*(this.char_space_x  )*this.pixel_space) + (this.border*2);
+		if (canvas.width != canvas_width){
+			canvas.width  = canvas_width
+			canvas.height = canvas_height
+		}
 		
+		// set alpha to the ghosting amount
+		ctx.globalAlpha = this.ghosting_ammount;
 		
+		// clear canvas
 		ctx.fillStyle = this.BackColor;
 		ctx.fillRect(0, 0, 640, 500);
 		
 		
+		// draw chars
 		for (var y = 0; y < this.layout.length; y++) {
 			for (var x = 0; x < this.layout[y].length; x++) {
 				var cha = this.LCD.get_desplay_byte( this.layout[y][x] )
