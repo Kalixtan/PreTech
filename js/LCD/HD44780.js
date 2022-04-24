@@ -182,7 +182,7 @@ class HD44780 {
 		else if (this.BIT(this.m_ir, 4))
 		{
 			// cursor or display shift
-			this.m_cursor_direction = (~this.BIT(this.m_ir, 2)) ? +1 : -1;
+			this.m_cursor_direction = (!this.BIT(this.m_ir, 2)) ? +1 : -1;
 
 			
 			if (this.BIT(this.m_ir, 3)){
@@ -237,7 +237,6 @@ class HD44780 {
 	
 	update_debug(){
 		document.getElementById('DDRAM').textContent = this.buf2hex(this.DDRAM);
-		document.getElementById('DDRAM_C').textContent = this.buf2char(this.DDRAM);
 		document.getElementById('CGRAM').textContent = this.buf2hex(this.CGRAM);
 		document.getElementById('busy_flag').textContent = this.m_busy_flag.toString() +"  "+ this.m_busy_timer.toString() +" -  "+this.m_active_ram;
 	}
