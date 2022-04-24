@@ -286,7 +286,7 @@ class render_character_LCD {
 		
 		
 		canvas.height = (this.layout.length   *(this.char_space_y-1)*this.pixel_space) + (this.border*2);
-		canvas.width  = (this.layout[0].length*(this.char_space_x-1)*this.pixel_space) + (this.border*2);
+		canvas.width  = (this.layout[0].length*(this.char_space_x  )*this.pixel_space) + (this.border*2);
 		
 		
 		ctx.fillStyle = this.BackColor;
