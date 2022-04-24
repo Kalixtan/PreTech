@@ -1,7 +1,7 @@
 'use strict';
 class HD44780 {
 	constructor(core) {
-		this.debug = false;
+		this.debug = true;
 		
 		this.core = core;
 		this.reset()
@@ -63,10 +63,14 @@ class HD44780 {
 		}
 		
 		if( address == 0x4000 ){
+		//if( address >= 0x4000 && address < 0x4100 ){
 			this.core.lcd.control_write( (data<<4) & 0xff )
 		}
 		else if( address == 0x4100 ){
+		//else if( address >= 0x4100 && address < 0x4200 ){
 			this.core.lcd.data_write( (data<<4) & 0xff )
+		} else {
+			console.log("          UNKNOWN IO WRITE : "+this.toHex(address))
 		}
 	}
 	read( address ){
@@ -184,14 +188,12 @@ class HD44780 {
 		else if (this.BIT(this.m_ir, 4))
 		{
 			// cursor or display shift
-			this.m_cursor_direction = (!this.BIT(this.m_ir, 2)) ? +1 : -1;
-
-			
 			if (this.BIT(this.m_ir, 3)){
 				this.shift_display(this.m_cursor_direction);
 				if(this.debug)console.log("HD44780: shift display: "+this.m_cursor_direction);
 			}else{
 				//update_ac(direction);
+				this.m_cursor_direction = (!this.BIT(this.m_ir, 2)) ? +1 : -1;
 				this.m_address_pointer += this.m_cursor_direction
 				this.correct_ac();
 				if(this.debug)console.log("HD44780: shift cursor: "+this.m_cursor_direction);
@@ -239,7 +241,8 @@ class HD44780 {
 	
 	update_debug(){
 		document.getElementById('DDRAM').textContent = this.buf2hex(this.DDRAM);
-		document.getElementById('CGRAM').textContent = this.buf2hex(this.CGRAM);
+		//document.getElementById('CGRAM').textContent = this.buf2hex(this.CGRAM);
+		document.getElementById('CGRAM').textContent = this.buf2hex(this.core.mem.ram);
 		document.getElementById('busy_flag').textContent = this.m_busy_flag.toString() +"  "+ this.m_busy_timer.toString() +" -  "+this.m_active_ram;
 	}
 	
