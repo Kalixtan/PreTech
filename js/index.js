@@ -15,6 +15,10 @@ document.getElementById("fileInput").addEventListener("change", (e) => {
 });
 
 
+var pressedKeys = {};
+window.onkeyup = function(e)   { pressedKeys[e.keyCode] = false; }
+window.onkeydown = function(e) { pressedKeys[e.keyCode] = true;  }
+
 
 /// LAZY LOOP!
 function loop(timestamp) {

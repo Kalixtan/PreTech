@@ -71,6 +71,8 @@ class HD44780 {
 	}
 	read( address ){
 		if( address >= 0x4000 && address < 0x4100 ){ // "everything 0x40?? is lcd ctrl"
+			var unknown_bit = (address>>2) & 0x01 // What does this doo?
+			
 			if (this.m_data_len == 4){ // && !machine().side_effects_disabled())
 				this.update_nibble((address>>8) & 0x01, 0);
 			}

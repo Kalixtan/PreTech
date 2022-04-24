@@ -100,42 +100,40 @@ class PRC1000_Keyboard {
 			case 8: {
 				b |= this.is_key_down('9')*0b00000001; // ? (KEYCODE_6_PAD)
 				b |= this.is_key_down('0')*0b00000010; // ? (KEYCODE_7_PAD)
-				b |= 0xff; // NEEDED TO POWER ON!
 				break;
 			}
 			default: {
-				return 0x00
+				b = 0x00
 			}
 			
 		}
+		
+		if (this.is_key_down(13)){
+			b = 0b00000010
+		}
+		b = (~b)&0xff
+		//console.log(line+"  -  "+this.toBin(b))
 		
 		return b
 	}
 	read( address ){
 		if( address < 0x01ff ){
-			
+			var data = 0xff;
 			for (var line=0; line<9; line++){
 				if (!(address & (1<<line))){
-					//console.log("          KEYBOARD INPUT : "+(line))
-					return this.read_keys(line)
+					data &= this.read_keys(line)
 				}
 			}
-			//console.log("          KEYBOARD INPUT : "+this.toBin(address))
+			//console.log("          KEYBOARD INPUT : "+this.toBin(data))
 			
-			return 0x00
+			return data
 		}
 		return null
 	}
 	
 	
 	is_key_down( key ) {
-		return true
-		// const state = {};
-
-		// window.addEventListener('keyup', (e) => state[e.key] = false);
-		// window.addEventListener('keydown', (e) => state[e.key] = true);
-
-		// return (key) => state.hasOwnProperty(key) && state[key] || false;
+		return pressedKeys[key];
 	}
 	
 	toBin = (v) => {
