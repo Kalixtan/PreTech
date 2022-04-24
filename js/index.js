@@ -25,6 +25,9 @@ function loop(timestamp) {
 	}
 	main.lcd.update_debug()
 
+	var canvas = document.getElementById('Screen');
+	main.lcd.render( canvas )
+
 	lastRender = timestamp
 	window.requestAnimationFrame(loop)
 }
