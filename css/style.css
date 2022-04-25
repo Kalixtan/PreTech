@@ -1,123 +1,189 @@
 html {
-  margin: 0;
-  padding: 0;
+	margin: 0;
+	padding: 0;
 }
 body {
-  margin: 0;
-  padding: 0;
-  color: #ccc;
-  background: #191919;
-  font-size: 13px;
-  text-align: center;
-  font-family: arial, sans-serif;
+	margin: 0;
+	padding: 0;
+	color: #ccc;
+	background: #191919;
+	font-size: 13px;
+	text-align: center;
+	font-family: arial, sans-serif;
 }
 input {
-  font-size: 13px;
-  text-align: center;
-  font-family: arial, sans-serif;
+	font-size: 13px;
+	text-align: center;
+	font-family: arial, sans-serif;
 }
 button:focus {
-  outline: 0;
+	outline: 0;
 }
 .button {
-  padding: 2px 4px;
-  border-radius: 4px;
-  cursor: pointer;
-  border: 0;
+	padding: 2px 4px;
+	border-radius: 4px;
+	cursor: pointer;
+	border: 0;
 }
 #gamepad_info {
-  color: chocolate;
-  padding-right: 8px;
-  cursor: pointer;
+	color: chocolate;
+	padding-right: 8px;
+	cursor: pointer;
 }
 #gamepad_cont{
-  width: fit-content;
-  margin: auto;
+	width: fit-content;
+	margin: auto;
 }
 #setteings {
-  vertical-align: middle;
-  padding: 4px;
-  cursor: pointer;
+	vertical-align: middle;
+	padding: 4px;
+	cursor: pointer;
 }
 #speed {
-  vertical-align: middle;
-  margin-left: 18px;
-  width: 150px;
+	vertical-align: middle;
+	margin-left: 18px;
+	width: 150px;
 }
 #output {
-  width: 256px;
-  height: 224px;
-  image-rendering: crisp-edges;
-  image-rendering: pixelated;
+	width: 256px;
+	height: 224px;
+	image-rendering: crisp-edges;
+	image-rendering: pixelated;
 }
 .button_div{
-  margin: 18px;
+	margin: 18px;
 }
 .button_div select{
-  font-size: 15px;
+	font-size: 15px;
 }
 .warpdiv {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: -500px;
-  color: #777;
-  text-align: center;
-  background: rgba(0, 0, 0, 0.8);
-  z-index: 999;
-  font-size: 13px;
-  transition-property: left;
-  transition-duration: 0.3s;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: -500px;
+	color: #777;
+	text-align: center;
+	background: rgba(0, 0, 0, 0.8);
+	z-index: 999;
+	font-size: 13px;
+	transition-property: left;
+	transition-duration: 0.3s;
 }
 .warpcontainer {
-  position: relative;
-  background-color: #fff;
-  color: black;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  font-size: 16px;
-  padding: 18px 12px 42px 12px;
-  width: 84%;
-  left: 8%;
-  top: 36px;
-  box-shadow: rgb(0 0 0 / 40%) 0px 0px 6px;
-  overflow-y: auto;
-  z-index: 1000;
-  box-sizing: border-box;
-  padding-left: 18px;
+	position: relative;
+	background-color: #fff;
+	color: black;
+	border: 1px solid #ccc;
+	border-radius: 3px;
+	font-size: 16px;
+	padding: 18px 12px 42px 12px;
+	width: 84%;
+	left: 8%;
+	top: 36px;
+	box-shadow: rgb(0 0 0 / 40%) 0px 0px 6px;
+	overflow-y: auto;
+	z-index: 1000;
+	box-sizing: border-box;
+	padding-left: 18px;
 }
 #gamepad_name {
-  padding: 18px 4px 8px 4px;
-  color: deeppink;
+	padding: 18px 4px 8px 4px;
+	color: deeppink;
 }
 .keyhelp label {
-  width: 200px;
-  display: inline-block;
-  text-align: right;
+	width: 200px;
+	display: inline-block;
+	text-align: right;
 }
 .ctrl_div {
-  text-align: right;
-  background: content-box;
-  color: #999;
-  line-height: 22px;
+	text-align: right;
+	background: content-box;
+	color: #999;
+	line-height: 22px;
 }
 .inputfile {
-  width: 0.1px;
-  height: 0.1px;
-  opacity: 0;
-  overflow: hidden;
-  position: absolute;
-  z-index: -1;
+	width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
 }
 .inputfile + label {
-  color: black;
-  background-color: dodgerblue;
-  display: inline-block;
+	color: black;
+	background-color: dodgerblue;
+	display: inline-block;
 }
 .github a {
-  float: left;
-  color: cornflowerblue;
-  text-decoration: none;
-  font-size: 12px;
+	float: left;
+	color: cornflowerblue;
+	text-decoration: none;
+	font-size: 12px;
 }
+
+
+/* debugtools */
+.debugtools {
+	width: 100%;
+	background-color: #191919;
+	color: white;
+	padding: 8px;
+	font-size: 16px;
+	border: solid;
+	border-color : #252525;
+	cursor: pointer;
+	text-align: left;
+}
+
+/* Dropdown Button */
+.dropbtn {
+	background-color: #3498DB;
+	color: white;
+	padding: 8px;
+	font-size: 16px;
+	border: none;
+	cursor: pointer;
+}
+
+
+/* Dropdown button on hover & focus */
+.dropbtn:hover, .dropbtn:focus {
+	background-color: #2980B9;
+}
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+	position: relative;
+	display: inline-block;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+	display: none;
+	position: absolute;
+	background-color: #f1f1f1;
+	min-width: 160px;
+	box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+	z-index: 1;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+	color: black;
+	padding: 12px 16px;
+	text-decoration: none;
+	display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {background-color: #ddd}
+
+/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+.show {display:block;}
+
+
+
+
+
+

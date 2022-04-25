@@ -16,16 +16,55 @@
 		</div>
 		
 		<canvas id="Screen" width="640" height="64"></canvas>
+
+
+		<div class="tab">
+			<button class="tablinks" onclick="openMenu(event, 'Memory')">Memory</button>
+			<button class="tablinks" onclick="openMenu(event, 'ROM')">ROM</button>
+		</div>
+
+
+		<div class="debugtools">
+			<div id="Memory" class="tabcontent">
+			
+				<div class="dropdown">
+					<button onclick="dropdownEvent()" class="dropbtn">Dropdown</button>
+					<div id="myDropdown" class="dropdown-content">
+						<a href="#">Ram</a>
+						<a href="#">CGRAM</a>
+						<a href="#">CGRAM</a>
+					</div>
+				</div> 
+				
+				
+				<div id="CGRAM" style="font-family:'Lucida Console', monospace">CGRAM</div>
+				<div id="DDRAM" style="font-family:'Lucida Console', monospace">CGRAM</div>
+				
+			</div>
+			<div id="Rom" class="tabcontent">
+			
+				<div class="dropdown">
+					<button onclick="dropdownEvent()" class="dropbtn">Dropdown</button>
+					<div id="myDropdown" class="dropdown-content">
+						<a href="#">Bios</a>
+						<a href="#">Cart</a>
+					</div>
+				</div> 
+				
+				
+				<div id="CGRAM" style="font-family:'Lucida Console', monospace">CGRAM</div>
+				<div id="DDRAM" style="font-family:'Lucida Console', monospace">CGRAM</div>
+				
+			</div>
+		</div>
 		
-		<div>DDRAM</div>
-		<div id="DDRAM" style="font-family:'Lucida Console', monospace" >DDRAM</div>
-		<div>------------------------------------------------------------------------------------------------------------------------------</div>
-		<div><s>CG</s>RAM</div>
-		<div id="CGRAM" style="font-family:'Lucida Console', monospace">CGRAM</div>
-		<div>------------------------------------------------------------------------------------------------------------------------------</div>
+		
+		
+		
 		<div>busy_flag</div>
 		<div id="busy_flag">busy_flag</div>
-		</div>
+		
+	</div>
 		<script src="js/io.js"></script>
 		<script src="js/irq.js"></script>
 		<script src="js/mem.js"></script>
