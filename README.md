@@ -22,4 +22,4 @@ Parts:
 		 - CGRAM - none (Unused in PrC1000)
 		 - Control-funtions - Working (?)
 		 - Byte-funtions - Working (?)
-		 - Video - none (can use hacky debugger to view the screen)
+		 - Renderer - Done
