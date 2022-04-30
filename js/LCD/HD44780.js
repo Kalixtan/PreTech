@@ -62,32 +62,26 @@ class HD44780 {
 			this.update_nibble((address>>8) & 0x01, 0);
 		}
 		
-		if( address == 0x4000 ){
-		//if( address >= 0x4000 && address < 0x4100 ){
-			this.core.lcd.control_write( (data<<4) & 0xff )
+		var UNKNOWN_BITS = (address&0xff);
+		var new_data = ((data<<4) ) & 0xff;
+		
+		if( address>>8 == 0x40 ){
+		//if( address == 0x4000 ){ // (Works but ignores a bunch of things)
+			this.core.lcd.control_write( new_data )
 		}
-		else if( address == 0x4100 ){
-		//else if( address >= 0x4100 && address < 0x4200 ){
-			this.core.lcd.data_write( (data<<4) & 0xff )
+		else if( address>>8 == 0x41 ){
+		//else if( address == 0x4100 ){ // (Works but ignores a bunch of things)
+			this.core.lcd.data_write( new_data )
 		} else {
 			console.log("          UNKNOWN IO WRITE : "+this.toHex(address))
 		}
 	}
 	read( address ){
-		if( address >= 0x4000 && address < 0x4100 ){ // "everything 0x40?? is lcd ctrl"
-			var unknown_bit = (address>>2) & 0x01 // What does this doo?
-			
-			if (this.m_data_len == 4){ // && !machine().side_effects_disabled())
-				this.update_nibble((address>>8) & 0x01, 0);
-			}
-			if (this.m_busy_flag){
-				return 0x80 | (this.m_ac & 0x7f)
-			} else {
-				return 0 | (this.m_ac & 0x7f)
-			}
-		}
 		
-		return null
+		if (this.m_data_len == 4){
+			this.update_nibble(address>>8 == 0x41, 0);
+		}
+		return 0
 	}
 	data_write( data ){
 		
@@ -227,6 +221,7 @@ class HD44780 {
 			// return home
 			if(this.debug)console.log("HD44780: Cursor home\n");
 			this.set_busy_flag(1520);
+			this.m_address_pointer  = 0;
 			return;
 		}
 		else if (this.BIT(this.m_ir, 0))
@@ -234,6 +229,12 @@ class HD44780 {
 			// clear display
 			if(this.debug)console.log("HD44780: clear display\n");
 			this.set_busy_flag(1520);
+			
+			for (var i = 0; i < this.DDRAM.length; i++) {
+				this.DDRAM[i] = 0;
+			}
+			this.m_address_pointer  = 0;
+			
 			return;
 		}
 		this.update_debug();
@@ -276,7 +277,7 @@ class HD44780 {
 		return '0x' + (('0000' + v.toString(16).toUpperCase()));
 	}
 	toBin = (v) => {
-		return '0x' + (('0000' + v.toString(16).toUpperCase()));
+		return '0b' + (( v.toString(2).toUpperCase()));
 	}
 	
 	set_busy_flag = (usec) => {

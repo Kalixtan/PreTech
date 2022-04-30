@@ -17,7 +17,7 @@ class IO {
 		
 		if (output == null){ // just incase nothing comes up
 			output = 0;
-			console.log("          UNKNOWN IO READ : "+this.toHex(address))
+			//console.log("          UNKNOWN IO READ : "+this.toHex(address))
 		}
 		return output
 	}
@@ -27,6 +27,13 @@ class IO {
 	
 		// HD44780
 		this.core.lcd.write( address, data )
+	
+		// "HD44780 - NEW.js"
+		// if (address == 0x4100){
+			// this.core.lcd.write( true, data )
+		// } else if (address == 0x4000){
+			// this.core.lcd.write( false, data )
+		// }
 	
 	}
 	toBin = (v) => {
