@@ -65,12 +65,12 @@ class HD44780 {
 		var UNKNOWN_BITS = (address&0xff);
 		var new_data = ((data<<4) ) & 0xff;
 		
-		if( address>>8 == 0x40 ){
-		//if( address == 0x4000 ){ // (Works but ignores a bunch of things)
+		//if( address>>8 == 0x40 ){
+		if( address == 0x4000 ){ // (Works but ignores a bunch of things)
 			this.core.lcd.control_write( new_data )
 		}
-		else if( address>>8 == 0x41 ){
-		//else if( address == 0x4100 ){ // (Works but ignores a bunch of things)
+		//else if( address>>8 == 0x41 ){
+		else if( address == 0x4100 ){ // (Works but ignores a bunch of things)
 			this.core.lcd.data_write( new_data )
 		} else {
 			console.log("          UNKNOWN IO WRITE : "+this.toHex(address))
@@ -81,6 +81,7 @@ class HD44780 {
 		if (this.m_data_len == 4){
 			this.update_nibble(address>>8 == 0x41, 0);
 		}
+		
 		return 0
 	}
 	data_write( data ){
