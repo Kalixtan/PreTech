@@ -2,6 +2,9 @@
 A ***(Super early expermental)*** emulator for the PreComputer line of computers.
 
 
+Join our Discord to help out the project: https://discord.gg/JzbsTUsVUm
+
+
 Computers:
    - PreComputer 1000 Based:
       - PreComputer 1000 - BIOS INTRO
