@@ -5,7 +5,7 @@
 
 
 Boot:
-	ld bc, $c000                                                  ; $0000 : $01, $00, $c0
+	ld bc, IO_C000                                                  ; $0000 : $01, $00, $c0
 	ld a, $fe                                                  ; $0003 : $3e, $fe
 	out (c), a                                                  ; $0005 : $ed, $79
 	jp Begin1                                                  ; $0007 : $c3, $00, $02
@@ -15,17 +15,17 @@ Boot:
 
 
 IrqVector:
-	jr _IrqVector                                                  ; $0038 : $18, $06
+	jr _IrqVector                                                   ; $0038
 
 
 	.ds $40-$3a, $00
 
 
 _IrqVector:
-	push af                                                  ; $0040 : $f5
-	push bc                                                  ; $0041 : $c5
-	push de                                                  ; $0042 : $d5
-	push hl                                                  ; $0043 : $e5
+	push af                                                         ; $0040
+	push bc                                                         ; $0041
+	push de                                                         ; $0042
+	push hl                                                         ; $0043
 
 ;
 	ld hl, $410f                                                  ; $0044 : $21, $0f, $41
@@ -165,7 +165,7 @@ br_00_00da:
 	bit 6, a                                                  ; $00ee : $cb, $77
 	jr z, br_00_0159                                                  ; $00f0 : $28, $67
 
-	ld a, ($4112)                                                  ; $00f2 : $3a, $12, $41
+	ld a, (wtodo_LowByteOfIOWriteAddr)                                                  ; $00f2 : $3a, $12, $41
 	bit 3, a                                                  ; $00f5 : $cb, $5f
 	jr nz, br_00_0156                                                  ; $00f7 : $20, $5d
 
@@ -325,8 +325,8 @@ br_00_01a5:
 
 
 AddCtoA:
-	add a, c                                                  ; $01b3 : $81
-	ret                                                  ; $01b4 : $c9
+	add a, c                                                        ; $01b3
+	ret                                                             ; $01b4
 
 
 Call_00_01b5:
@@ -370,7 +370,7 @@ br_00_01d5:
 
 Begin1:
 ;
-	ld bc, $8000                                                  ; $0200 : $01, $00, $80
+	ld bc, IO_8000                                                  ; $0200 : $01, $00, $80
 	ld a, $08                                                  ; $0203 : $3e, $08
 	out (c), a                                                  ; $0205 : $ed, $79
 
@@ -394,12 +394,15 @@ Begin1:
 
 
 @noCart:
-	ld c, $0f                                                  ; $021e : $0e, $0f
-	ld b, $40                                                  ; $0220 : $06, $40
+;
+	ld c, <IO_400F                                                  ; $021e : $0e, $0f
+	ld b, >IO_400F                                                  ; $0220 : $06, $40
 	out (c), a                                                  ; $0222 : $ed, $79
-	ld b, $80                                                  ; $0224 : $06, $80
+	ld b, >IO_800F                                                  ; $0224 : $06, $80
 	ld a, $02                                                  ; $0226 : $3e, $02
 	out (c), a                                                  ; $0228 : $ed, $79
+
+;
 	ld hl, $4000                                                  ; $022a : $21, $00, $40
 	xor a                                                  ; $022d : $af
 -	ld (hl), a                                                  ; $022e : $77
@@ -407,8 +410,11 @@ Begin1:
 	bit 3, h                                                  ; $0230 : $cb, $5c
 	jr z, -                                                  ; $0232 : $28, $fa
 
+;
 	ld hl, $47ff                                                  ; $0234 : $21, $ff, $47
 	ld sp, hl                                                  ; $0237 : $f9
+
+;
 	call Call_00_0290                                                  ; $0238 : $cd, $90, $02
 	call Call_00_0244                                                  ; $023b : $cd, $44, $02
 	jp NoCartBegin1                                                  ; $023e : $c3, $14, $03
@@ -418,15 +424,15 @@ Call_00_0241:
 	call Call_00_058f                                                  ; $0241 : $cd, $8f, $05
 
 Call_00_0244:
-	call Call_00_02d7                                                  ; $0244 : $cd, $d7, $02
+	call todo_ClearUnscrolledLCDChars                                                  ; $0244 : $cd, $d7, $02
 
 Call_00_0247:
 	call Call_00_02f8                                                  ; $0247 : $cd, $f8, $02
 	call Call_00_02ec                                                  ; $024a : $cd, $ec, $02
 
 Call_00_024d:
-	call Call_00_04b2                                                  ; $024d : $cd, $b2, $04
-	call Call_00_04c4                                                  ; $0250 : $cd, $c4, $04
+	call CopyFromUnscrolledCharsToLCDChars                                                  ; $024d : $cd, $b2, $04
+	call UpdateLCDChars                                                  ; $0250 : $cd, $c4, $04
 	ld hl, $07d5                                                  ; $0253 : $21, $d5, $07
 	ld ($4130), hl                                                  ; $0256 : $22, $30, $41
 	ld hl, $0c25                                                  ; $0259 : $21, $25, $0c
@@ -482,7 +488,7 @@ Call_00_0290:
 	ret                                                  ; $02d6 : $c9
 
 
-Call_00_02d7:
+todo_ClearUnscrolledLCDChars:
 	push hl                                                  ; $02d7 : $e5
 	ld hl, $416b                                                  ; $02d8 : $21, $6b, $41
 	ld c, $95                                                  ; $02db : $0e, $95
@@ -519,13 +525,13 @@ Call_00_02f8:
 	ld hl, $4161                                                  ; $0301 : $21, $61, $41
 	res 0, (hl)                                                  ; $0304 : $cb, $86
 	res 1, (hl)                                                  ; $0306 : $cb, $8e
+
+;
 	ld hl, $4200                                                  ; $0308 : $21, $00, $42
 	ld b, $80                                                  ; $030b : $06, $80
-
-br_00_030d:
-	ld (hl), $20                                                  ; $030d : $36, $20
+-	ld (hl), $20                                                  ; $030d : $36, $20
 	inc hl                                                  ; $030f : $23
-	djnz br_00_030d                                                  ; $0310 : $10, $fb
+	djnz -                                                  ; $0310 : $10, $fb
 	pop hl                                                  ; $0312 : $e1
 	ret                                                  ; $0313 : $c9
 
@@ -630,7 +636,7 @@ Call_00_0390:
 	ret                                                  ; $03aa : $c9
 
 
-Call_00_03ab:
+todo_ScrollInNewText:
 	ld a, (hl)                                                  ; $03ab : $7e
 	ld ($4116), a                                                  ; $03ac : $32, $16, $41
 	call Call_00_042b                                                  ; $03af : $cd, $2b, $04
@@ -643,7 +649,7 @@ Call_00_03b9:
 	call Call_00_02f8                                                  ; $03b9 : $cd, $f8, $02
 	call Call_00_0510                                                  ; $03bc : $cd, $10, $05
 	ld a, ($416b)                                                  ; $03bf : $3a, $6b, $41
-	ld ($416a), a                                                  ; $03c2 : $32, $6a, $41
+	ld (wIdxInUnscrolledChars), a                                                  ; $03c2 : $32, $6a, $41
 	ld c, a                                                  ; $03c5 : $4f
 	ld a, $13                                                  ; $03c6 : $3e, $13
 	ld ($4169), a                                                  ; $03c8 : $32, $69, $41
@@ -729,7 +735,7 @@ br_00_0424:
 
 
 Call_00_042b:
-	call Call_00_02d7                                                  ; $042b : $cd, $d7, $02
+	call todo_ClearUnscrolledLCDChars                                                  ; $042b : $cd, $d7, $02
 	ld b, $00                                                  ; $042e : $06, $00
 	ld c, (hl)                                                  ; $0430 : $4e
 	inc hl                                                  ; $0431 : $23
@@ -749,7 +755,7 @@ Call_00_043e:
 
 
 Call_00_0445:
-	ld hl, $416a                                                  ; $0445 : $21, $6a, $41
+	ld hl, wIdxInUnscrolledChars                                                  ; $0445 : $21, $6a, $41
 	ld a, (hl)                                                  ; $0448 : $7e
 	dec hl                                                  ; $0449 : $2b
 	add a, (hl)                                                  ; $044a : $86
@@ -812,7 +818,7 @@ Call_00_047a:
 
 
 WriteAtoLCDCtrlport:
-	ld bc, $4000                                                  ; $048e : $01, $00, $40
+	ld bc, IO_4000                                                  ; $048e : $01, $00, $40
 
 ; B - $40: control, $41: data
 WriteAtoLCDport:
@@ -821,20 +827,20 @@ WriteAtoLCDport:
 
 ;
 	push af                                                  ; $0493 : $f5
-	ld a, ($4112)                                                  ; $0494 : $3a, $12, $41
+	ld a, (wtodo_LowByteOfIOWriteAddr)                                                  ; $0494 : $3a, $12, $41
 	ld c, a                                                  ; $0497 : $4f
 	pop af                                                  ; $0498 : $f1
 
 	ld d, a                                                  ; $0499 : $57
 
-; Send over the low nybble
+; Send over the high nybble
 	rra                                                  ; $049a : $1f
 	rra                                                  ; $049b : $1f
 	rra                                                  ; $049c : $1f
 	rra                                                  ; $049d : $1f
 	out (c), a                                                  ; $049e : $ed, $79
 
-; Send over the high nybble
+; Send over the low nybble
 	ld a, d                                                  ; $04a0 : $7a
 	out (c), a                                                  ; $04a1 : $ed, $79
 
@@ -844,7 +850,7 @@ WriteAtoLCDport:
 	bit 3, a                                                  ; $04a7 : $cb, $5f
 	jr nz, -                                                  ; $04a9 : $20, $fa
 
-;
+; eg IO_4001 or IO_$4101
 	set 0, c                                                  ; $04ab : $cb, $c1
 	out (c), a                                                  ; $04ad : $ed, $79
 	pop hl                                                  ; $04af : $e1
@@ -852,49 +858,67 @@ WriteAtoLCDport:
 	ret                                                  ; $04b1 : $c9
 
 
-Call_00_04b2:
-	ld bc, $0014                                                  ; $04b2 : $01, $14, $00
-	ld a, ($416a)                                                  ; $04b5 : $3a, $6a, $41
-	add a, $7f                                                  ; $04b8 : $c6, $7f
-	ld hl, $4100                                                  ; $04ba : $21, $00, $41
-	ld l, a                                                  ; $04bd : $6f
-	ld de, $42a3                                                  ; $04be : $11, $a3, $42
-	lddr                                                  ; $04c1 : $ed, $b8
-	ret                                                  ; $04c3 : $c9
+; wIdxInUnscrolledChars - how many chars to skip displaying
+; wUnscrolledLCDChars - buffer of chars that can be scrolled in
+; wLCDChars - src of all LCD chars
+CopyFromUnscrolledCharsToLCDChars:
+	ld bc, NUM_CHARS                                                ; $04b2
+
+; The higher the starting idx, the more scrolled left the text is
+	ld a, (wIdxInUnscrolledChars)                                   ; $04b5
+	add a, <(wUnscrolledLCDChars+NUM_CHARS-1)                       ; $04b8
+	ld hl, (wUnscrolledLCDChars+NUM_CHARS-1)&$ff00                  ; $04ba
+	ld l, a                                                         ; $04bd
+
+	ld de, wLCDChars+NUM_CHARS-1                                    ; $04be
+	lddr                                                            ; $04c1
+	ret                                                             ; $04c3
 
 
-Call_00_04c4:
-	ld a, $0d                                                  ; $04c4 : $3e, $0d
-	call WriteAtoLCDCtrlport                                                  ; $04c6 : $cd, $8e, $04
-	ld a, $80                                                  ; $04c9 : $3e, $80
-	call WriteAtoLCDCtrlport                                                  ; $04cb : $cd, $8e, $04
-	ld hl, $4290                                                  ; $04ce : $21, $90, $42
+; wLCDChars - src of all LCD chars
+UpdateLCDChars:
+; Turn on display with blinking cursor pos
+	ld a, LCD_DISP_ON_OFF_CTRL|LCD08_DISP_ON|LCD08_CURSOR_OFF|LCD08_BLINK_ON ; $04c4
+	call WriteAtoLCDCtrlport                                        ; $04c6
+	ld a, LCD_SET_DDRAM_ADDR|LCD_LEFT_HALF_ADDR                     ; $04c9
+	call WriteAtoLCDCtrlport                                        ; $04cb
 
-br_00_04d1:
-	ld c, $0a                                                  ; $04d1 : $0e, $0a
+; Copy 10*2 characters from buffer
+	ld hl, wLCDChars                                                ; $04ce
 
-br_00_04d3:
-	ld a, (hl)                                                  ; $04d3 : $7e
-	push bc                                                  ; $04d4 : $c5
-	ld bc, $4100                                                  ; $04d5 : $01, $00, $41
-	call WriteAtoLCDport                                                  ; $04d8 : $cd, $91, $04
-	pop bc                                                  ; $04db : $c1
-	inc hl                                                  ; $04dc : $23
-	dec c                                                  ; $04dd : $0d
-	jr nz, br_00_04d3                                                  ; $04de : $20, $f3
+@nextHalf:
+; Write 10 characters
+	ld c, NUM_CHARS/2                                               ; $04d1
 
-	dec b                                                  ; $04e0 : $05
-	jr z, br_00_04ec                                                  ; $04e1 : $28, $09
+@nextChar:
+; Copy from HL to LCD data port
+	ld a, (hl)                                                      ; $04d3
+	push bc                                                         ; $04d4
+	ld bc, IO_4100                                                  ; $04d5
+	call WriteAtoLCDport                                            ; $04d8
+	pop bc                                                          ; $04db
+	inc hl                                                          ; $04dc
+	dec c                                                           ; $04dd
+	jr nz, @nextChar                                                ; $04de
 
-	ld a, $c0                                                  ; $04e3 : $3e, $c0
-	call WriteAtoLCDCtrlport                                                  ; $04e5 : $cd, $8e, $04
-	ld b, $01                                                  ; $04e8 : $06, $01
-	jr br_00_04d1                                                  ; $04ea : $18, $e5
+; 1st time, B is $40 from above ctrl port writes
+; After the 2nd half, it is 1
+	dec b                                                           ; $04e0
+	jr z, @end                                                      ; $04e1
 
-br_00_04ec:
-	ld a, $0d                                                  ; $04ec : $3e, $0d
-	call WriteAtoLCDCtrlport                                                  ; $04ee : $cd, $8e, $04
-	ret                                                  ; $04f1 : $c9
+; Set addr to where the right half reads data
+	ld a, LCD_SET_DDRAM_ADDR|LCD_RIGHT_HALF_ADDR                    ; $04e3
+	call WriteAtoLCDCtrlport                                        ; $04e5
+
+; This 1 causes the jump to @end
+	ld b, $01                                                       ; $04e8
+	jr @nextHalf                                                    ; $04ea
+
+@end:
+; Repeat initial display on/off ctrl
+	ld a, LCD_DISP_ON_OFF_CTRL|LCD08_DISP_ON|LCD08_CURSOR_OFF|LCD08_BLINK_ON ; $04ec
+	call WriteAtoLCDCtrlport                                        ; $04ee
+	ret                                                             ; $04f1
 
 
 Call_00_04f2:
@@ -942,16 +966,16 @@ br_00_051d:
 	ret                                                  ; $0529 : $c9
 
 
-	ld hl, $4112                                                  ; $052a : $21, $12, $41
+	ld hl, wtodo_LowByteOfIOWriteAddr                                                  ; $052a : $21, $12, $41
 	set 3, (hl)                                                  ; $052d : $cb, $de
-	ld bc, $400f                                                  ; $052f : $01, $0f, $40
+	ld bc, IO_400F                                                 ; $052f : $01, $0f, $40
 	out (c), a                                                  ; $0532 : $ed, $79
 	ret                                                  ; $0534 : $c9
 
 
-	ld hl, $4112                                                  ; $0535 : $21, $12, $41
+	ld hl, wtodo_LowByteOfIOWriteAddr                                                  ; $0535 : $21, $12, $41
 	res 3, (hl)                                                  ; $0538 : $cb, $9e
-	ld bc, $4007                                                  ; $053a : $01, $07, $40
+	ld bc, IO_4007                                                 ; $053a : $01, $07, $40
 	out (c), a                                                  ; $053d : $ed, $79
 	ret                                                  ; $053f : $c9
 
@@ -963,7 +987,7 @@ br_00_0543:
 	call Call_00_0561                                                  ; $0546 : $cd, $61, $05
 	ld hl, $4101                                                  ; $0549 : $21, $01, $41
 	bit 2, (hl)                                                  ; $054c : $cb, $56
-	jr nz, br_00_058f                                                  ; $054e : $20, $3f
+	jr nz, Call_00_058f                                                  ; $054e : $20, $3f
 
 	ld hl, $4114                                                  ; $0550 : $21, $14, $41
 	inc (hl)                                                  ; $0553 : $34
@@ -1006,7 +1030,6 @@ br_00_0586:
 
 
 Call_00_058f:
-br_00_058f:
 	ld a, $00                                                  ; $058f : $3e, $00
 	ld hl, $4114                                                  ; $0591 : $21, $14, $41
 	ld (hl), a                                                  ; $0594 : $77
@@ -1015,12 +1038,10 @@ Call_00_0595:
 	ld a, $ff                                                  ; $0595 : $3e, $ff
 	ld c, $09                                                  ; $0597 : $0e, $09
 	ld hl, $4100                                                  ; $0599 : $21, $00, $41
-
-br_00_059c:
-	ld (hl), a                                                  ; $059c : $77
+-	ld (hl), a                                                  ; $059c : $77
 	inc hl                                                  ; $059d : $23
 	dec c                                                  ; $059e : $0d
-	jr nz, br_00_059c                                                  ; $059f : $20, $fb
+	jr nz, -                                                  ; $059f : $20, $fb
 
 	ld hl, $410f                                                  ; $05a1 : $21, $0f, $41
 	res 4, (hl)                                                  ; $05a4 : $cb, $a6
@@ -1050,8 +1071,8 @@ br_00_05be:
 	dec (hl)                                                  ; $05bf : $35
 
 br_00_05c0:
-	call Call_00_04b2                                                  ; $05c0 : $cd, $b2, $04
-	call Call_00_04c4                                                  ; $05c3 : $cd, $c4, $04
+	call CopyFromUnscrolledCharsToLCDChars                                                  ; $05c0 : $cd, $b2, $04
+	call UpdateLCDChars                                                  ; $05c3 : $cd, $c4, $04
 	call Call_00_04f2                                                  ; $05c6 : $cd, $f2, $04
 
 br_00_05c9:
@@ -1065,7 +1086,7 @@ br_00_05cd:
 	call Call_00_0561                                                  ; $05d0 : $cd, $61, $05
 	ld hl, $4101                                                  ; $05d3 : $21, $01, $41
 	bit 3, (hl)                                                  ; $05d6 : $cb, $5e
-	jr nz, br_00_058f                                                  ; $05d8 : $20, $b5
+	jr nz, Call_00_058f                                                  ; $05d8 : $20, $b5
 
 	ld hl, $4114                                                  ; $05da : $21, $14, $41
 	inc (hl)                                                  ; $05dd : $34
@@ -1085,8 +1106,8 @@ Call_00_05eb:
 
 	dec (hl)                                                  ; $05f2 : $35
 	call Call_00_0459                                                  ; $05f3 : $cd, $59, $04
-	call Call_00_04b2                                                  ; $05f6 : $cd, $b2, $04
-	call Call_00_04c4                                                  ; $05f9 : $cd, $c4, $04
+	call CopyFromUnscrolledCharsToLCDChars                                                  ; $05f6 : $cd, $b2, $04
+	call UpdateLCDChars                                                  ; $05f9 : $cd, $c4, $04
 	call Call_00_04f2                                                  ; $05fc : $cd, $f2, $04
 
 br_00_05ff:
@@ -1105,11 +1126,11 @@ br_00_0605:
 	inc hl                                                  ; $060f : $23
 	ld (hl), $00                                                  ; $0610 : $36, $00
 	ld a, ($4163)                                                  ; $0612 : $3a, $63, $41
-	ld ($416a), a                                                  ; $0615 : $32, $6a, $41
+	ld (wIdxInUnscrolledChars), a                                                  ; $0615 : $32, $6a, $41
 
 Jump_00_0618:
-	call Call_00_04b2                                                  ; $0618 : $cd, $b2, $04
-	call Call_00_04c4                                                  ; $061b : $cd, $c4, $04
+	call CopyFromUnscrolledCharsToLCDChars                                                  ; $0618 : $cd, $b2, $04
+	call UpdateLCDChars                                                  ; $061b : $cd, $c4, $04
 
 Jump_00_061e:
 	call Call_00_0561                                                  ; $061e : $cd, $61, $05
@@ -1252,7 +1273,7 @@ br_00_06c8:
 	xor a                                                  ; $06dd : $af
 
 br_00_06de:
-	ld bc, $4100                                                  ; $06de : $01, $00, $41
+	ld bc, IO_4100                                                 ; $06de : $01, $00, $41
 	call WriteAtoLCDport                                                  ; $06e1 : $cd, $91, $04
 	jp Jump_00_061e                                                  ; $06e4 : $c3, $1e, $06
 
@@ -1311,7 +1332,7 @@ br_00_071f:
 Call_00_0723:
 	ld a, $20                                                  ; $0723 : $3e, $20
 	ld b, $14                                                  ; $0725 : $06, $14
-	ld hl, $4290                                                  ; $0727 : $21, $90, $42
+	ld hl, wLCDChars                                                  ; $0727 : $21, $90, $42
 
 br_00_072a:
 	ld (hl), a                                                  ; $072a : $77
@@ -1354,40 +1375,40 @@ Call_00_0752:
 Call_00_0753:
 	ld d, $80                                                  ; $0753 : $16, $80
 
-br_00_0755:
-	ld hl, $4112                                                  ; $0755 : $21, $12, $41
+@loop_0755:
+	ld hl, wtodo_LowByteOfIOWriteAddr                                                  ; $0755 : $21, $12, $41
 	set 1, (hl)                                                  ; $0758 : $cb, $ce
 	res 2, (hl)                                                  ; $075a : $cb, $96
 
-br_00_075c:
+@loop_075c:
 	ld c, (hl)                                                  ; $075c : $4e
 	ld b, $40                                                  ; $075d : $06, $40
 	set 0, c                                                  ; $075f : $cb, $c1
 	out (c), a                                                  ; $0761 : $ed, $79
 	ld a, ($4125)                                                  ; $0763 : $3a, $25, $41
 
-br_00_0766:
-	dec a                                                  ; $0766 : $3d
+; Wait a while
+-	dec a                                                  ; $0766 : $3d
 	nop                                                  ; $0767 : $00
 	nop                                                  ; $0768 : $00
 	nop                                                  ; $0769 : $00
 	nop                                                  ; $076a : $00
-	jr nz, br_00_0766                                                  ; $076b : $20, $f9
+	jr nz, -                                                  ; $076b : $20, $f9
 
 	bit 1, (hl)                                                  ; $076d : $cb, $4e
-	jr z, br_00_0777                                                  ; $076f : $28, $06
+	jr z, @br_0777                                                  ; $076f : $28, $06
 
 	res 1, (hl)                                                  ; $0771 : $cb, $8e
 	set 2, (hl)                                                  ; $0773 : $cb, $d6
-	jr br_00_075c                                                  ; $0775 : $18, $e5
+	jr @loop_075c                                                  ; $0775 : $18, $e5
 
-br_00_0777:
+@br_0777:
 	ld hl, $4126                                                  ; $0777 : $21, $26, $41
 	rrc d                                                  ; $077a : $cb, $0a
-	jr nc, br_00_0755                                                  ; $077c : $30, $d7
+	jr nc, @loop_0755                                                  ; $077c : $30, $d7
 
 	dec (hl)                                                  ; $077e : $35
-	jr nz, br_00_0755                                                  ; $077f : $20, $d4
+	jr nz, @loop_0755                                                  ; $077f : $20, $d4
 
 	ret                                                  ; $0781 : $c9
 
@@ -1464,7 +1485,7 @@ Call_00_07d1:
 	jp (hl)                                                  ; $07d4 : $e9
 
 
-	ld hl, $4112                                                  ; $07d5 : $21, $12, $41
+	ld hl, wtodo_LowByteOfIOWriteAddr                                                  ; $07d5 : $21, $12, $41
 	res 3, (hl)                                                  ; $07d8 : $cb, $9e
 	ld a, $03                                                  ; $07da : $3e, $03
 	ld ($4640), a                                                  ; $07dc : $32, $40, $46
@@ -1740,7 +1761,7 @@ Jump_00_0975:
 Jump_00_097e:
 	call Call_00_0244                                                  ; $097e : $cd, $44, $02
 	ld a, $49                                                  ; $0981 : $3e, $49
-	ld hl, $416a                                                  ; $0983 : $21, $6a, $41
+	ld hl, wIdxInUnscrolledChars                                                  ; $0983 : $21, $6a, $41
 	ld (hl), a                                                  ; $0986 : $77
 	inc hl                                                  ; $0987 : $23
 	ld (hl), a                                                  ; $0988 : $77
@@ -1766,7 +1787,7 @@ br_00_0989:
 	cp $13                                                  ; $09ac : $fe, $13
 	jr nz, br_00_09b8                                                  ; $09ae : $20, $08
 
-	ld a, ($416a)                                                  ; $09b0 : $3a, $6a, $41
+	ld a, (wIdxInUnscrolledChars)                                                  ; $09b0 : $3a, $6a, $41
 	cp $80                                                  ; $09b3 : $fe, $80
 	call z, Call_00_0745                                                  ; $09b5 : $cc, $45, $07
 
@@ -1949,8 +1970,8 @@ br_00_0a7d:
 
 
 Call_00_0a84:
-	call Call_00_02d7                                                  ; $0a84 : $cd, $d7, $02
-	call Call_00_04b2                                                  ; $0a87 : $cd, $b2, $04
+	call todo_ClearUnscrolledLCDChars                                                  ; $0a84 : $cd, $d7, $02
+	call CopyFromUnscrolledCharsToLCDChars                                                  ; $0a87 : $cd, $b2, $04
 	ld hl, $4292                                                  ; $0a8a : $21, $92, $42
 	ld c, $08                                                  ; $0a8d : $0e, $08
 
@@ -1967,7 +1988,7 @@ br_00_0a8f:
 	call AddAtoHL                                                  ; $0a9d : $cd, $99, $01
 	ld a, ($4121)                                                  ; $0aa0 : $3a, $21, $41
 	ld (hl), a                                                  ; $0aa3 : $77
-	call Call_00_04c4                                                  ; $0aa4 : $cd, $c4, $04
+	call UpdateLCDChars                                                  ; $0aa4 : $cd, $c4, $04
 
 br_00_0aa7:
 	call Call_00_0561                                                  ; $0aa7 : $cd, $61, $05
@@ -2007,7 +2028,7 @@ br_00_0acd:
 	bit 2, (hl)                                                  ; $0ad0 : $cb, $56
 	jr z, br_00_0aa7                                                  ; $0ad2 : $28, $d3
 
-	call Call_00_04b2                                                  ; $0ad4 : $cd, $b2, $04
+	call CopyFromUnscrolledCharsToLCDChars                                                  ; $0ad4 : $cd, $b2, $04
 	call Call_00_073b                                                  ; $0ad7 : $cd, $3b, $07
 	ld hl, $2846                                                  ; $0ada : $21, $46, $28
 	call Call_00_042b                                                  ; $0add : $cd, $2b, $04
@@ -2074,7 +2095,7 @@ br_00_0b1b:
 
 br_00_0b3a:
 	push af                                                  ; $0b3a : $f5
-	ld bc, $4100                                                  ; $0b3b : $01, $00, $41
+	ld bc, IO_4100                                                  ; $0b3b : $01, $00, $41
 	call WriteAtoLCDport                                                  ; $0b3e : $cd, $91, $04
 	call Call_00_03dd                                                  ; $0b41 : $cd, $dd, $03
 	call Call_00_073b                                                  ; $0b44 : $cd, $3b, $07
@@ -2276,7 +2297,7 @@ br_00_0c22:
 	ret                                                  ; $0c24 : $c9
 
 
-	ld hl, $4112                                                  ; $0c25 : $21, $12, $41
+	ld hl, wtodo_LowByteOfIOWriteAddr                                                  ; $0c25 : $21, $12, $41
 	res 3, (hl)                                                  ; $0c28 : $cb, $9e
 
 Jump_00_0c2a:
@@ -2308,7 +2329,7 @@ Jump_00_0c5a:
 	ld hl, $4127                                                  ; $0c69 : $21, $27, $41
 	ld (hl), $00                                                  ; $0c6c : $36, $00
 	ld hl, $27bf                                                  ; $0c6e : $21, $bf, $27
-	call Call_00_03ab                                                  ; $0c71 : $cd, $ab, $03
+	call todo_ScrollInNewText                                                  ; $0c71 : $cd, $ab, $03
 	call Call_00_03e4                                                  ; $0c74 : $cd, $e4, $03
 	ld a, $33                                                  ; $0c77 : $3e, $33
 	ld ($4119), a                                                  ; $0c79 : $32, $19, $41
@@ -2330,7 +2351,7 @@ Jump_00_0c9a:
 	call Call_00_0782                                                  ; $0c9d : $cd, $82, $07
 	call Call_00_03dd                                                  ; $0ca0 : $cd, $dd, $03
 	ld a, ($4118)                                                  ; $0ca3 : $3a, $18, $41
-	ld hl, $4112                                                  ; $0ca6 : $21, $12, $41
+	ld hl, wtodo_LowByteOfIOWriteAddr                                                  ; $0ca6 : $21, $12, $41
 	set 3, (hl)                                                  ; $0ca9 : $cb, $de
 	ld hl, $4155                                                  ; $0cab : $21, $55, $41
 	ld (hl), $00                                                  ; $0cae : $36, $00
@@ -2385,7 +2406,7 @@ Jump_00_0ced:
 	srl a                                                  ; $0cf0 : $cb, $3f
 	push af                                                  ; $0cf2 : $f5
 	call Call_00_0df9                                                  ; $0cf3 : $cd, $f9, $0d
-	call Call_00_02d7                                                  ; $0cf6 : $cd, $d7, $02
+	call todo_ClearUnscrolledLCDChars                                                  ; $0cf6 : $cd, $d7, $02
 	call Call_00_0414                                                  ; $0cf9 : $cd, $14, $04
 	pop af                                                  ; $0cfc : $f1
 	ld ($410c), a                                                  ; $0cfd : $32, $0c, $41
@@ -2415,7 +2436,7 @@ Jump_00_0d0d:
 	inc bc                                                  ; $0d23 : $03
 	exx                                                  ; $0d24 : $d9
 	ld b, $00                                                  ; $0d25 : $06, $00
-	ld a, ($416a)                                                  ; $0d27 : $3a, $6a, $41
+	ld a, (wIdxInUnscrolledChars)                                                  ; $0d27 : $3a, $6a, $41
 	or a                                                  ; $0d2a : $b7
 	jr z, br_00_0d41                                                  ; $0d2b : $28, $14
 
@@ -2423,7 +2444,7 @@ Jump_00_0d0d:
 	ld hl, $4181                                                  ; $0d2e : $21, $81, $41
 	ld de, $4180                                                  ; $0d31 : $11, $80, $41
 	ldir                                                  ; $0d34 : $ed, $b0
-	ld hl, $416a                                                  ; $0d36 : $21, $6a, $41
+	ld hl, wIdxInUnscrolledChars                                                  ; $0d36 : $21, $6a, $41
 	dec (hl)                                                  ; $0d39 : $35
 	ld hl, $4123                                                  ; $0d3a : $21, $23, $41
 	dec (hl)                                                  ; $0d3d : $35
@@ -2467,7 +2488,7 @@ br_00_0d6d:
 	exx                                                  ; $0d6d : $d9
 
 br_00_0d6e:
-	ld de, $416a                                                  ; $0d6e : $11, $6a, $41
+	ld de, wIdxInUnscrolledChars                                                  ; $0d6e : $11, $6a, $41
 	ld a, (de)                                                  ; $0d71 : $1a
 	cp $15                                                  ; $0d72 : $fe, $15
 	jr nz, br_00_0d9e                                                  ; $0d74 : $20, $28
@@ -2532,11 +2553,11 @@ br_00_0dce:
 
 br_00_0dd6:
 	ld ($4113), a                                                  ; $0dd6 : $32, $13, $41
-	ld hl, $416a                                                  ; $0dd9 : $21, $6a, $41
+	ld hl, wIdxInUnscrolledChars                                                  ; $0dd9 : $21, $6a, $41
 	inc (hl)                                                  ; $0ddc : $34
 	call Call_00_0105                                                  ; $0ddd : $cd, $05, $01
 	call Call_00_0445                                                  ; $0de0 : $cd, $45, $04
-	ld hl, $416a                                                  ; $0de3 : $21, $6a, $41
+	ld hl, wIdxInUnscrolledChars                                                  ; $0de3 : $21, $6a, $41
 	dec (hl)                                                  ; $0de6 : $35
 	call Call_00_024d                                                  ; $0de7 : $cd, $4d, $02
 	ld a, ($410c)                                                  ; $0dea : $3a, $0c, $41
@@ -2599,14 +2620,14 @@ br_00_0e2e:
 	ret                                                  ; $0e35 : $c9
 
 
-	ld hl, $4112                                                  ; $0e36 : $21, $12, $41
+	ld hl, wtodo_LowByteOfIOWriteAddr                                                  ; $0e36 : $21, $12, $41
 	res 3, (hl)                                                  ; $0e39 : $cb, $9e
 	ld a, $03                                                  ; $0e3b : $3e, $03
 	ld ($4640), a                                                  ; $0e3d : $32, $40, $46
 	ld ($4641), a                                                  ; $0e40 : $32, $41, $46
 	call Call_00_3bcc                                                  ; $0e43 : $cd, $cc, $3b
 	ld hl, $27fe                                                  ; $0e46 : $21, $fe, $27
-	call Call_00_03ab                                                  ; $0e49 : $cd, $ab, $03
+	call todo_ScrollInNewText                                                  ; $0e49 : $cd, $ab, $03
 	call Call_00_03dd                                                  ; $0e4c : $cd, $dd, $03
 	ld de, $2c2f                                                  ; $0e4f : $11, $2f, $2c
 	call Call_00_0782                                                  ; $0e52 : $cd, $82, $07
@@ -2980,11 +3001,11 @@ Call_00_1075:
 	ld d, $fe                                                  ; $1094 : $16, $fe
 
 br_00_1096:
-	ld bc, $8000                                                  ; $1096 : $01, $00, $80
+	ld bc, IO_8000                                                  ; $1096 : $01, $00, $80
 	sla a                                                  ; $1099 : $cb, $27
 	out (c), a                                                  ; $109b : $ed, $79
 	ld a, d                                                  ; $109d : $7a
-	ld b, $c0                                                  ; $109e : $06, $c0
+	ld b, >IO_C000                                                  ; $109e : $06, $c0
 	out (c), a                                                  ; $10a0 : $ed, $79
 	ret                                                  ; $10a2 : $c9
 
@@ -3073,7 +3094,7 @@ Call_00_10fa:
 
 Jump_00_1110:
 	ld hl, $27ca                                                  ; $1110 : $21, $ca, $27
-	call Call_00_03ab                                                  ; $1113 : $cd, $ab, $03
+	call todo_ScrollInNewText                                                  ; $1113 : $cd, $ab, $03
 	call Call_00_03e4                                                  ; $1116 : $cd, $e4, $03
 	call Call_00_10e5                                                  ; $1119 : $cd, $e5, $10
 	call Call_00_11bd                                                  ; $111c : $cd, $bd, $11
@@ -3110,8 +3131,8 @@ br_00_115d:
 	ld a, ($4128)                                                  ; $115d : $3a, $28, $41
 	set 4, a                                                  ; $1160 : $cb, $e7
 	set 5, a                                                  ; $1162 : $cb, $ef
-	ld ($4290), a                                                  ; $1164 : $32, $90, $42
-	call Call_00_04c4                                                  ; $1167 : $cd, $c4, $04
+	ld (wLCDChars), a                                                  ; $1164 : $32, $90, $42
+	call UpdateLCDChars                                                  ; $1167 : $cd, $c4, $04
 
 Jump_00_116a:
 br_00_116a:
@@ -3228,7 +3249,7 @@ br_00_123b:
 
 Jump_00_123d:
 	call Call_00_03dd                                                  ; $123d : $cd, $dd, $03
-	ld hl, $4112                                                  ; $1240 : $21, $12, $41
+	ld hl, wtodo_LowByteOfIOWriteAddr                                                  ; $1240 : $21, $12, $41
 	set 3, (hl)                                                  ; $1243 : $cb, $de
 	ld a, ($4165)                                                  ; $1245 : $3a, $65, $41
 	ret                                                  ; $1248 : $c9
@@ -3282,7 +3303,7 @@ Call_00_1273:
 	push hl                                                  ; $1273 : $e5
 	push de                                                  ; $1274 : $d5
 	call Call_00_02f8                                                  ; $1275 : $cd, $f8, $02
-	call Call_00_02d7                                                  ; $1278 : $cd, $d7, $02
+	call todo_ClearUnscrolledLCDChars                                                  ; $1278 : $cd, $d7, $02
 	ld a, (hl)                                                  ; $127b : $7e
 	ld b, $00                                                  ; $127c : $06, $00
 	ld c, a                                                  ; $127e : $4f
@@ -3367,7 +3388,7 @@ Call_00_12d3:
 
 
 Jump_00_12f3:
-	call Call_00_04c4                                                  ; $12f3 : $cd, $c4, $04
+	call UpdateLCDChars                                                  ; $12f3 : $cd, $c4, $04
 	ld a, ($4116)                                                  ; $12f6 : $3a, $16, $41
 	ld hl, $412a                                                  ; $12f9 : $21, $2a, $41
 	cp (hl)                                                  ; $12fc : $be
@@ -3412,12 +3433,12 @@ Call_00_1336:
 br_00_133b:
 	push bc                                                  ; $133b : $c5
 	call Call_00_0723                                                  ; $133c : $cd, $23, $07
-	call Call_00_04c4                                                  ; $133f : $cd, $c4, $04
+	call UpdateLCDChars                                                  ; $133f : $cd, $c4, $04
 	call Call_00_03dd                                                  ; $1342 : $cd, $dd, $03
 	ld a, ($4116)                                                  ; $1345 : $3a, $16, $41
-	ld ($416a), a                                                  ; $1348 : $32, $6a, $41
-	call Call_00_04b2                                                  ; $134b : $cd, $b2, $04
-	call Call_00_04c4                                                  ; $134e : $cd, $c4, $04
+	ld (wIdxInUnscrolledChars), a                                                  ; $1348 : $32, $6a, $41
+	call CopyFromUnscrolledCharsToLCDChars                                                  ; $134b : $cd, $b2, $04
+	call UpdateLCDChars                                                  ; $134e : $cd, $c4, $04
 	call Call_00_03e4                                                  ; $1351 : $cd, $e4, $03
 	pop bc                                                  ; $1354 : $c1
 	djnz br_00_133b                                                  ; $1355 : $10, $e4
@@ -3488,7 +3509,7 @@ br_00_13ae:
 	jr br_00_139c                                                  ; $13b8 : $18, $e2
 
 br_00_13ba:
-	call Call_00_04c4                                                  ; $13ba : $cd, $c4, $04
+	call UpdateLCDChars                                                  ; $13ba : $cd, $c4, $04
 	ld hl, ($412b)                                                  ; $13bd : $2a, $2b, $41
 	inc (hl)                                                  ; $13c0 : $34
 	ld a, ($4116)                                                  ; $13c1 : $3a, $16, $41
@@ -3563,7 +3584,7 @@ br_00_142a:
 
 
 br_00_1431:
-	ld a, ($4290)                                                  ; $1431 : $3a, $90, $42
+	ld a, (wLCDChars)                                                  ; $1431 : $3a, $90, $42
 	cp $20                                                  ; $1434 : $fe, $20
 	jr z, br_00_143d                                                  ; $1436 : $28, $05
 
@@ -3593,7 +3614,7 @@ Call_00_144a:
 	jr br_00_1459                                                  ; $1454 : $18, $03
 
 br_00_1456:
-	ld de, $4290                                                  ; $1456 : $11, $90, $42
+	ld de, wLCDChars                                                  ; $1456 : $11, $90, $42
 
 br_00_1459:
 	ld a, ($4127)                                                  ; $1459 : $3a, $27, $41
@@ -3613,7 +3634,7 @@ br_00_146b:
 br_00_1474:
 	ld bc, $0008                                                  ; $1474 : $01, $08, $00
 	ldir                                                  ; $1477 : $ed, $b0
-	call Call_00_04c4                                                  ; $1479 : $cd, $c4, $04
+	call UpdateLCDChars                                                  ; $1479 : $cd, $c4, $04
 	ld hl, $410f                                                  ; $147c : $21, $0f, $41
 	set 1, (hl)                                                  ; $147f : $cb, $ce
 
@@ -3645,7 +3666,7 @@ Call_00_1497:
 	jr br_00_14aa                                                  ; $14a5 : $18, $03
 
 br_00_14a7:
-	ld de, $4290                                                  ; $14a7 : $11, $90, $42
+	ld de, wLCDChars                                                  ; $14a7 : $11, $90, $42
 
 br_00_14aa:
 	ld (de), a                                                  ; $14aa : $12
@@ -3653,7 +3674,7 @@ br_00_14aa:
 	dec c                                                  ; $14ac : $0d
 	jr nz, br_00_14aa                                                  ; $14ad : $20, $fb
 
-	call Call_00_04c4                                                  ; $14af : $cd, $c4, $04
+	call UpdateLCDChars                                                  ; $14af : $cd, $c4, $04
 	ld hl, $410f                                                  ; $14b2 : $21, $0f, $41
 	set 1, (hl)                                                  ; $14b5 : $cb, $ce
 
@@ -3694,7 +3715,7 @@ br_00_14e0:
 
 Jump_00_14e5:
 	ld hl, $27d2                                                  ; $14e5 : $21, $d2, $27
-	call Call_00_03ab                                                  ; $14e8 : $cd, $ab, $03
+	call todo_ScrollInNewText                                                  ; $14e8 : $cd, $ab, $03
 	call Call_00_03e4                                                  ; $14eb : $cd, $e4, $03
 	call Call_00_10e5                                                  ; $14ee : $cd, $e5, $10
 	call Call_00_11bd                                                  ; $14f1 : $cd, $bd, $11
@@ -3836,7 +3857,7 @@ br_00_15a9:
 
 br_00_15cc:
 	ld hl, $2873                                                  ; $15cc : $21, $73, $28
-	call Call_00_03ab                                                  ; $15cf : $cd, $ab, $03
+	call todo_ScrollInNewText                                                  ; $15cf : $cd, $ab, $03
 	call Call_00_03dd                                                  ; $15d2 : $cd, $dd, $03
 	call Call_00_1a6c                                                  ; $15d5 : $cd, $6c, $1a
 
@@ -3869,7 +3890,7 @@ Call_00_1602:
 	nop                                                  ; $1602 : $00
 
 Call_00_1603:
-	call Call_00_02d7                                                  ; $1603 : $cd, $d7, $02
+	call todo_ClearUnscrolledLCDChars                                                  ; $1603 : $cd, $d7, $02
 	ld de, $4180                                                  ; $1606 : $11, $80, $41
 	ld hl, $42b0                                                  ; $1609 : $21, $b0, $42
 	ld bc, $0010                                                  ; $160c : $01, $10, $00
@@ -3929,7 +3950,7 @@ Jump_00_1666:
 	ld a, ($4116)                                                  ; $1666 : $3a, $16, $41
 	push af                                                  ; $1669 : $f5
 	ld hl, $2886                                                  ; $166a : $21, $86, $28
-	call Call_00_03ab                                                  ; $166d : $cd, $ab, $03
+	call todo_ScrollInNewText                                                  ; $166d : $cd, $ab, $03
 	call Call_00_03dd                                                  ; $1670 : $cd, $dd, $03
 	pop af                                                  ; $1673 : $f1
 	ld ($4116), a                                                  ; $1674 : $32, $16, $41
@@ -3986,7 +4007,7 @@ Jump_00_16bf:
 	ld a, $01                                                  ; $16cd : $3e, $01
 	ld ($412d), a                                                  ; $16cf : $32, $2d, $41
 	ld a, ($4116)                                                  ; $16d2 : $3a, $16, $41
-	ld ($416a), a                                                  ; $16d5 : $32, $6a, $41
+	ld (wIdxInUnscrolledChars), a                                                  ; $16d5 : $32, $6a, $41
 	call Call_00_024d                                                  ; $16d8 : $cd, $4d, $02
 	call Call_00_073b                                                  ; $16db : $cd, $3b, $07
 	call Call_00_16e4                                                  ; $16de : $cd, $e4, $16
@@ -4005,7 +4026,7 @@ br_00_16e4:
 	jr br_00_16f6                                                  ; $16f1 : $18, $03
 
 br_00_16f3:
-	ld a, ($4290)                                                  ; $16f3 : $3a, $90, $42
+	ld a, (wLCDChars)                                                  ; $16f3 : $3a, $90, $42
 
 br_00_16f6:
 	cp $20                                                  ; $16f6 : $fe, $20
@@ -4219,7 +4240,7 @@ Call_00_1817:
 
 
 Jump_00_1821:
-	ld hl, $4112                                                  ; $1821 : $21, $12, $41
+	ld hl, wtodo_LowByteOfIOWriteAddr                                                  ; $1821 : $21, $12, $41
 	res 3, (hl)                                                  ; $1824 : $cb, $9e
 	ld a, $03                                                  ; $1826 : $3e, $03
 	ld ($4640), a                                                  ; $1828 : $32, $40, $46
@@ -4269,7 +4290,7 @@ Jump_00_186d:
 	ld a, $05                                                  ; $1893 : $3e, $05
 	ld ($4118), a                                                  ; $1895 : $32, $18, $41
 	ld hl, $276e                                                  ; $1898 : $21, $6e, $27
-	call Call_00_03ab                                                  ; $189b : $cd, $ab, $03
+	call todo_ScrollInNewText                                                  ; $189b : $cd, $ab, $03
 	call Call_00_03e4                                                  ; $189e : $cd, $e4, $03
 	call Call_00_10e5                                                  ; $18a1 : $cd, $e5, $10
 	sla a                                                  ; $18a4 : $cb, $27
@@ -4325,7 +4346,7 @@ br_00_18fd:
 	ld a, $02                                                  ; $18fd : $3e, $02
 	ld ($4118), a                                                  ; $18ff : $32, $18, $41
 	ld hl, $274b                                                  ; $1902 : $21, $4b, $27
-	call Call_00_03ab                                                  ; $1905 : $cd, $ab, $03
+	call todo_ScrollInNewText                                                  ; $1905 : $cd, $ab, $03
 	call Call_00_03e4                                                  ; $1908 : $cd, $e4, $03
 	call Call_00_20fd                                                  ; $190b : $cd, $fd, $20
 	ld ($4117), a                                                  ; $190e : $32, $17, $41
@@ -4542,7 +4563,7 @@ br_00_1a4a:
 	ld de, $2c39                                                  ; $1a52 : $11, $39, $2c
 	call Call_00_0782                                                  ; $1a55 : $cd, $82, $07
 	ld hl, $2873                                                  ; $1a58 : $21, $73, $28
-	call Call_00_03ab                                                  ; $1a5b : $cd, $ab, $03
+	call todo_ScrollInNewText                                                  ; $1a5b : $cd, $ab, $03
 	call Call_00_03e4                                                  ; $1a5e : $cd, $e4, $03
 	ld a, ($4160)                                                  ; $1a61 : $3a, $60, $41
 	cp $01                                                  ; $1a64 : $fe, $01
@@ -4605,7 +4626,7 @@ br_00_1a97:
 	jr z, br_00_1af4                                                  ; $1aae : $28, $44
 
 	ld hl, $2886                                                  ; $1ab0 : $21, $86, $28
-	call Call_00_03ab                                                  ; $1ab3 : $cd, $ab, $03
+	call todo_ScrollInNewText                                                  ; $1ab3 : $cd, $ab, $03
 	call Call_00_03dd                                                  ; $1ab6 : $cd, $dd, $03
 
 Jump_00_1ab9:
@@ -4809,7 +4830,7 @@ Jump_00_1be9:
 	ld hl, $2741                                                  ; $1bee : $21, $41, $27
 
 Jump_00_1bf1:
-	call Call_00_03ab                                                  ; $1bf1 : $cd, $ab, $03
+	call todo_ScrollInNewText                                                  ; $1bf1 : $cd, $ab, $03
 	call Call_00_03e4                                                  ; $1bf4 : $cd, $e4, $03
 	call Call_00_10ed                                                  ; $1bf7 : $cd, $ed, $10
 	ld ($4117), a                                                  ; $1bfa : $32, $17, $41
@@ -4874,7 +4895,7 @@ Call_00_1c4d:
 
 	call Call_00_0745                                                  ; $1c59 : $cd, $45, $07
 	ld hl, $28bb                                                  ; $1c5c : $21, $bb, $28
-	call Call_00_03ab                                                  ; $1c5f : $cd, $ab, $03
+	call todo_ScrollInNewText                                                  ; $1c5f : $cd, $ab, $03
 	call Call_00_03e4                                                  ; $1c62 : $cd, $e4, $03
 	jr br_00_1c43                                                  ; $1c65 : $18, $dc
 
@@ -4936,13 +4957,13 @@ Call_00_1cb9:
 	ld de, $2c2f                                                  ; $1cce : $11, $2f, $2c
 	call Call_00_0782                                                  ; $1cd1 : $cd, $82, $07
 	call Call_00_03dd                                                  ; $1cd4 : $cd, $dd, $03
-	ld hl, $4112                                                  ; $1cd7 : $21, $12, $41
+	ld hl, wtodo_LowByteOfIOWriteAddr                                                  ; $1cd7 : $21, $12, $41
 	res 3, (hl)                                                  ; $1cda : $cb, $9e
 	ret                                                  ; $1cdc : $c9
 
 
 Call_00_1cdd:
-	call Call_00_02d7                                                  ; $1cdd : $cd, $d7, $02
+	call todo_ClearUnscrolledLCDChars                                                  ; $1cdd : $cd, $d7, $02
 	ld hl, $42c1                                                  ; $1ce0 : $21, $c1, $42
 	ld de, $4180                                                  ; $1ce3 : $11, $80, $41
 	ld bc, $0014                                                  ; $1ce6 : $01, $14, $00
@@ -5151,7 +5172,7 @@ Jump_00_1e05:
 	ld a, $01                                                  ; $1e0a : $3e, $01
 	ld ($4118), a                                                  ; $1e0c : $32, $18, $41
 	ld hl, $275e                                                  ; $1e0f : $21, $5e, $27
-	call Call_00_03ab                                                  ; $1e12 : $cd, $ab, $03
+	call todo_ScrollInNewText                                                  ; $1e12 : $cd, $ab, $03
 	call Call_00_03e4                                                  ; $1e15 : $cd, $e4, $03
 	call Call_00_20fd                                                  ; $1e18 : $cd, $fd, $20
 	ld ($4166), a                                                  ; $1e1b : $32, $66, $41
@@ -5697,7 +5718,7 @@ Call_00_2110:
 
 Call_00_211c:
 	call Call_00_02f8                                                  ; $211c : $cd, $f8, $02
-	call Call_00_02d7                                                  ; $211f : $cd, $d7, $02
+	call todo_ClearUnscrolledLCDChars                                                  ; $211f : $cd, $d7, $02
 	call Call_00_1d08                                                  ; $2122 : $cd, $08, $1d
 	cp $02                                                  ; $2125 : $fe, $02
 	jr c, br_00_2152                                                  ; $2127 : $38, $29
@@ -6104,7 +6125,7 @@ br_00_2344:
 
 Call_00_2349:
 	call Call_00_20f1                                                  ; $2349 : $cd, $f1, $20
-	call Call_00_02d7                                                  ; $234c : $cd, $d7, $02
+	call todo_ClearUnscrolledLCDChars                                                  ; $234c : $cd, $d7, $02
 	ld a, ($4154)                                                  ; $234f : $3a, $54, $41
 	ld hl, $42c1                                                  ; $2352 : $21, $c1, $42
 	call AddAtoHL                                                  ; $2355 : $cd, $99, $01
@@ -6290,7 +6311,7 @@ Jump_00_243b:
 	jp z, Jump_00_2479                                                  ; $2442 : $ca, $79, $24
 	ld ($4060), a                                                  ; $2445 : $32, $60, $40
 	ld hl, $268a                                                  ; $2448 : $21, $8a, $26
-	call Call_00_03ab                                                  ; $244b : $cd, $ab, $03
+	call todo_ScrollInNewText                                                  ; $244b : $cd, $ab, $03
 	call Call_00_03dd                                                  ; $244e : $cd, $dd, $03
 	ld a, $3a                                                  ; $2451 : $3e, $3a
 	ld ($4119), a                                                  ; $2453 : $32, $19, $41
@@ -6314,7 +6335,7 @@ Jump_00_2479:
 	xor a                                                  ; $2479 : $af
 	ld ($4060), a                                                  ; $247a : $32, $60, $40
 	ld hl, $269b                                                  ; $247d : $21, $9b, $26
-	call Call_00_03ab                                                  ; $2480 : $cd, $ab, $03
+	call todo_ScrollInNewText                                                  ; $2480 : $cd, $ab, $03
 
 Jump_00_2483:
 	call Call_00_03dd                                                  ; $2483 : $cd, $dd, $03
@@ -8314,7 +8335,7 @@ br_00_2c35:
 	rlca                                                  ; $2c60 : $07
 	ex af, af'                                                  ; $2c61 : $08
 	nop                                                  ; $2c62 : $00
-	ld bc, $8000                                                  ; $2c63 : $01, $00, $80
+	ld bc, IO_8000                                                 ; $2c63 : $01, $00, $80
 	ld a, $01                                                  ; $2c66 : $3e, $01
 	out (c), a                                                  ; $2c68 : $ed, $79
 	nop                                                  ; $2c6a : $00
@@ -8322,14 +8343,14 @@ br_00_2c35:
 	nop                                                  ; $2c6c : $00
 
 Jump_00_2c6d:
-	ld bc, $8000                                                  ; $2c6d : $01, $00, $80
+	ld bc, IO_8000                                                  ; $2c6d : $01, $00, $80
 	ld a, $01                                                  ; $2c70 : $3e, $01
 	out (c), a                                                  ; $2c72 : $ed, $79
 	jp Boot                                                  ; $2c74 : $c3, $00, $00
 
 
 Jump_00_2c77:
-	ld hl, $4112                                                  ; $2c77 : $21, $12, $41
+	ld hl, wtodo_LowByteOfIOWriteAddr                                                  ; $2c77 : $21, $12, $41
 	res 3, (hl)                                                  ; $2c7a : $cb, $9e
 	ld a, $33                                                  ; $2c7c : $3e, $33
 	ld ($4119), a                                                  ; $2c7e : $32, $19, $41
@@ -8354,7 +8375,7 @@ Jump_00_2ca6:
 	jp z, Jump_00_2ce4                                                  ; $2cad : $ca, $e4, $2c
 	ld ($4060), a                                                  ; $2cb0 : $32, $60, $40
 	ld hl, $268a                                                  ; $2cb3 : $21, $8a, $26
-	call Call_00_03ab                                                  ; $2cb6 : $cd, $ab, $03
+	call todo_ScrollInNewText                                                  ; $2cb6 : $cd, $ab, $03
 	call Call_00_03dd                                                  ; $2cb9 : $cd, $dd, $03
 	ld a, $3a                                                  ; $2cbc : $3e, $3a
 	ld ($4119), a                                                  ; $2cbe : $32, $19, $41
@@ -8378,7 +8399,7 @@ Jump_00_2ce4:
 	xor a                                                  ; $2ce4 : $af
 	ld ($4060), a                                                  ; $2ce5 : $32, $60, $40
 	ld hl, $269b                                                  ; $2ce8 : $21, $9b, $26
-	call Call_00_03ab                                                  ; $2ceb : $cd, $ab, $03
+	call todo_ScrollInNewText                                                  ; $2ceb : $cd, $ab, $03
 
 Jump_00_2cee:
 	call Call_00_03dd                                                  ; $2cee : $cd, $dd, $03
@@ -9160,7 +9181,7 @@ Jump_00_3010:
 
 Jump_00_3017:
 	di                                                  ; $3017 : $f3
-	ld hl, $4112                                                  ; $3018 : $21, $12, $41
+	ld hl, wtodo_LowByteOfIOWriteAddr                                                  ; $3018 : $21, $12, $41
 	res 3, (hl)                                                  ; $301b : $cb, $9e
 	ld a, $04                                                  ; $301d : $3e, $04
 	ld ($4640), a                                                  ; $301f : $32, $40, $46
@@ -9264,7 +9285,7 @@ Jump_00_30be:
 	ld hl, $3387                                                  ; $30db : $21, $87, $33
 	add hl, bc                                                  ; $30de : $09
 	ld ($462c), hl                                                  ; $30df : $22, $2c, $46
-	ld hl, $4112                                                  ; $30e2 : $21, $12, $41
+	ld hl, wtodo_LowByteOfIOWriteAddr                                                  ; $30e2 : $21, $12, $41
 	set 3, (hl)                                                  ; $30e5 : $cb, $de
 	call Call_00_34fd                                                  ; $30e7 : $cd, $fd, $34
 	call Call_00_358a                                                  ; $30ea : $cd, $8a, $35
@@ -9747,7 +9768,7 @@ Jump_00_345d:
 	ld hl, $4155                                                  ; $345d : $21, $55, $41
 	ld (hl), $00                                                  ; $3460 : $36, $00
 	push af                                                  ; $3462 : $f5
-	ld bc, $4100                                                  ; $3463 : $01, $00, $41
+	ld bc, IO_4100                                                  ; $3463 : $01, $00, $41
 	call WriteAtoLCDport                                                  ; $3466 : $cd, $91, $04
 	call Call_00_03dd                                                  ; $3469 : $cd, $dd, $03
 	pop af                                                  ; $346c : $f1
@@ -9889,7 +9910,7 @@ Call_00_3556:
 
 Call_00_355c:
 br_00_355c:
-	call Call_00_03ab                                                  ; $355c : $cd, $ab, $03
+	call todo_ScrollInNewText                                                  ; $355c : $cd, $ab, $03
 	call Call_00_03dd                                                  ; $355f : $cd, $dd, $03
 	ret                                                  ; $3562 : $c9
 
@@ -11482,8 +11503,8 @@ Jump_00_3d36:
 	ld bc, $ffff                                                  ; $3dfd : $01, $ff, $ff
 
 NoCartBegin2:
-	ld hl, $3e80                                                  ; $3e00 : $21, $80, $3e
-	call Call_00_03ab                                                  ; $3e03 : $cd, $ab, $03
+	ld hl, Data_3e80                                                  ; $3e00 : $21, $80, $3e
+	call todo_ScrollInNewText                                                  ; $3e03 : $cd, $ab, $03
 	ld de, $2c20                                                  ; $3e06 : $11, $20, $2c
 	jp NoCartBegin3                                                  ; $3e09 : $c3, $1f, $03
 
@@ -11585,37 +11606,14 @@ br_00_3e31:
 	nop                                                  ; $3e7c : $00
 	inc b                                                  ; $3e7d : $04
 	nop                                                  ; $3e7e : $00
-	jp m, $431f                                                  ; $3e7f : $fa, $1f, $43
-	ld c, a                                                  ; $3e82 : $4f
-	ld d, b                                                  ; $3e83 : $50
-	ld e, c                                                  ; $3e84 : $59
-	ld d, d                                                  ; $3e85 : $52
-	ld c, c                                                  ; $3e86 : $49
-	ld b, a                                                  ; $3e87 : $47
-	ld c, b                                                  ; $3e88 : $48
-	ld d, h                                                  ; $3e89 : $54
-	jr nz, br_00_3ebd                                                  ; $3e8a : $20, $31
+	.db $fa
 
-	add hl, sp                                                  ; $3e8c : $39
-	jr c, br_00_3ec7                                                  ; $3e8d : $38, $38
 
-	jr nz, br_00_3ee7                                                  ; $3e8f : $20, $56
+Data_3e80:
+	.db $1f                                                  ; $3e80: $1f
+	.asc "COPYRIGHT 1988 VIDEO TECHNOLOGY"
 
-	ld c, c                                                  ; $3e91 : $49
-	ld b, h                                                  ; $3e92 : $44
-	ld b, l                                                  ; $3e93 : $45
-	ld c, a                                                  ; $3e94 : $4f
-	jr nz, br_00_3eeb                                                  ; $3e95 : $20, $54
 
-	ld b, l                                                  ; $3e97 : $45
-	ld b, e                                                  ; $3e98 : $43
-	ld c, b                                                  ; $3e99 : $48
-	ld c, (hl)                                                  ; $3e9a : $4e
-	ld c, a                                                  ; $3e9b : $4f
-	ld c, h                                                  ; $3e9c : $4c
-	ld c, a                                                  ; $3e9d : $4f
-	ld b, a                                                  ; $3e9e : $47
-	ld e, c                                                  ; $3e9f : $59
 	nop                                                  ; $3ea0 : $00
 	nop                                                  ; $3ea1 : $00
 	nop                                                  ; $3ea2 : $00

@@ -3,7 +3,7 @@
 
 	slotsize $4000
     slot 0 $0000
-	slot 1 $0000
+	slot 1 $4000
 	slot 2 $0000
 	slot 3 $0000
 	slot 4 $0000
