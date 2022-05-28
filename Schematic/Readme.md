@@ -1,0 +1,3 @@
+The *.PDN file is a multi-layer image of the PCB with layers for Traces, components, pin names, a few routed traces, and other notes or aids for reverse engineering a schematic. 
+
+The Schematic files (*.sch) were created with Eagle 7.7 simply because that is the tool I'm familiar with and has/had reasonable licensing costs. If you can find the same version or a compatible version I believe it can be used to navigate and view the schematic, but editing will be either limited or unavailable. 
